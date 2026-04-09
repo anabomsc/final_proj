@@ -1,0 +1,5 @@
+# $AMENT_CURRENT_PREFIX is replaced with /opt/ros/<distro>/share/ on clean builds, that's why using $COLCON_CURRENT_PREFIX instead.
+ament_prepend_unique_value IGN_GAZEBO_RESOURCE_PATH "$COLCON_CURRENT_PREFIX/share/@PROJECT_NAME@/worlds"
+ament_prepend_unique_value IGN_GAZEBO_RESOURCE_PATH "$COLCON_CURRENT_PREFIX/share/@PROJECT_NAME@/description/models
+
+ament_prepend_unique_value IGN_GAZEBO_PLUGIN_PATH "$COLCON_CURRENT_PREFIX/lib"
