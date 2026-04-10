@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"  name="articulate_bot">
 
-    <xacro:arg name="prefix" default="" />
+    <xacro:arg name="frame_prefix" default="artbot_" />
+    <xacro:arg name="topic_prefix" default="artbot/" />
 
     <xacro:include filename="robot_core.xacro"/>
     <xacro:include filename="gazebo_control.xacro"/>

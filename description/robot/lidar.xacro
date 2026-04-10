@@ -1,15 +1,16 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
 
-    <xacro:arg name="prefix" default="" />
+    <xacro:arg name="frame_prefix" default="artbot_" />
+    <xacro:arg name="topic_prefix" default="artbot/" />
 
-    <joint name="$(arg prefix)laser_joint" type="fixed">
-        <parent link="$(arg prefix)chassis"/>
-        <child link="$(arg prefix)laser_frame"/>
+    <joint name="$(arg frame_prefix)laser_joint" type="fixed">
+        <parent link="$(arg frame_prefix)chassis"/>
+        <child link="$(arg frame_prefix)laser_frame"/>
         <origin xyz="0.122 0 0.212" rpy="0 0 0"/>
     </joint>
 
-    <link name="$(arg prefix)laser_frame">
+    <link name="$(arg frame_prefix)laser_frame">
         <visual>
             <geometry>
                 <cylinder radius="0.05" length="0.04"/>
@@ -35,10 +36,10 @@
 
 
 
-    <gazebo reference="$(arg prefix)laser_frame">
+    <gazebo reference="$(arg frame_prefix)laser_frame">
         <material>Gazebo/Black</material>
 
-        <sensor name="$(arg prefix)laser" type="gpu_lidar">
+        <sensor name="$(arg frame_prefix)laser" type="gpu_lidar">
             <pose> 0 0 0 0 0 0 </pose>
             <visualize>false</visualize>
             <update_rate>10</update_rate>
@@ -55,8 +56,8 @@
                     <max>12</max>
                 </range>
             </lidar>
-            <topic>/$(arg prefix)scan</topic>
-            <gz_frame_id>$(arg prefix)laser_frame</gz_frame_id>
+            <topic>/$(arg topic_prefix)scan</topic>
+            <gz_frame_id>$(arg frame_prefix)laser_frame</gz_frame_id>
         </sensor>
     </gazebo>
 

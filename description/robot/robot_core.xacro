@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
 
-    <xacro:arg name="prefix" default="" />
+    <xacro:arg name="frame_prefix" default="artbot_" />
+    <xacro:arg name="topic_prefix" default="artbot/" />
 
     <xacro:include filename="inertial_macros.xacro"/>
 
@@ -42,31 +43,31 @@
 
     <!-- BASE LINK -->
 
-    <link name="$(arg prefix)base_link">
+    <link name="$(arg frame_prefix)base_link">
 
     </link>
 
     <!-- BASE_FOOTPRINT LINK -->
 
-    <joint name="$(arg prefix)base_footprint_joint" type="fixed">
-        <parent link="$(arg prefix)base_link"/>
-        <child link="$(arg prefix)base_footprint"/>
+    <joint name="$(arg frame_prefix)base_footprint_joint" type="fixed">
+        <parent link="$(arg frame_prefix)base_link"/>
+        <child link="$(arg frame_prefix)base_footprint"/>
         <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
 
-    <link name="$(arg prefix)base_footprint">
+    <link name="$(arg frame_prefix)base_footprint">
     </link>
 
 
     <!-- CHASSIS LINK -->
 
-    <joint name="$(arg prefix)chassis_joint" type="fixed">
-        <parent link="$(arg prefix)base_link"/>
-        <child link="$(arg prefix)chassis"/>
+    <joint name="$(arg frame_prefix)chassis_joint" type="fixed">
+        <parent link="$(arg frame_prefix)base_link"/>
+        <child link="$(arg frame_prefix)chassis"/>
         <origin xyz="${-wheel_offset_x} 0 ${-wheel_offset_z}"/>
     </joint>
 
-    <link name="$(arg prefix)chassis">
+    <link name="$(arg frame_prefix)chassis">
         <visual>
             <origin xyz="${chassis_length/2} 0 ${chassis_height/2}"/>
             <geometry>
@@ -85,20 +86,20 @@
         </xacro:inertial_box>
     </link>
 
-    <gazebo reference="$(arg prefix)chassis">
+    <gazebo reference="$(arg frame_prefix)chassis">
         <material>Gazebo/Orange</material>
     </gazebo>
 
     <!-- LEFT WHEEL LINK -->
 
-    <joint name="$(arg prefix)left_wheel_joint" type="continuous">
-        <parent link="$(arg prefix)base_link"/>
-        <child link="$(arg prefix)left_wheel"/>
+    <joint name="$(arg frame_prefix)left_wheel_joint" type="continuous">
+        <parent link="$(arg frame_prefix)base_link"/>
+        <child link="$(arg frame_prefix)left_wheel"/>
         <origin xyz="0 ${wheel_offset_y} 0" rpy="-${pi/2} 0 0" />
         <axis xyz="0 0 1"/>
     </joint>
 
-    <link name="$(arg prefix)left_wheel">
+    <link name="$(arg frame_prefix)left_wheel">
         <visual>
             <geometry>
                 <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
@@ -115,7 +116,7 @@
         </xacro:inertial_cylinder>
     </link>
 
-    <gazebo reference="$(arg prefix)left_wheel">
+    <gazebo reference="$(arg frame_prefix)left_wheel">
         <material>Gazebo/Blue</material>
     </gazebo>
 
@@ -124,14 +125,14 @@
 
     <!-- RIGHT WHEEL LINK -->
 
-    <joint name="$(arg prefix)right_wheel_joint" type="continuous">
-        <parent link="$(arg prefix)base_link"/>
-        <child link="$(arg prefix)right_wheel"/>
+    <joint name="$(arg frame_prefix)right_wheel_joint" type="continuous">
+        <parent link="$(arg frame_prefix)base_link"/>
+        <child link="$(arg frame_prefix)right_wheel"/>
         <origin xyz="0 ${-wheel_offset_y} 0" rpy="${pi/2} 0 0" />
         <axis xyz="0 0 -1"/>
     </joint>
 
-    <link name="$(arg prefix)right_wheel">
+    <link name="$(arg frame_prefix)right_wheel">
         <visual>
             <geometry>
                 <cylinder radius="${wheel_radius}" length="${wheel_thickness}"/>
@@ -148,21 +149,21 @@
         </xacro:inertial_cylinder>
     </link>
 
-    <gazebo reference="$(arg prefix)right_wheel">
+    <gazebo reference="$(arg frame_prefix)right_wheel">
         <material>Gazebo/Blue</material>
     </gazebo>
 
 
     <!-- CASTER WHEEL LINK -->
 
-    <joint name="$(arg prefix)caster_wheel_joint" type="fixed">
-        <parent link="$(arg prefix)chassis"/>
-        <child link="$(arg prefix)caster_wheel"/>
+    <joint name="$(arg frame_prefix)caster_wheel_joint" type="fixed">
+        <parent link="$(arg frame_prefix)chassis"/>
+        <child link="$(arg frame_prefix)caster_wheel"/>
         <origin xyz="${caster_wheel_offset_x} 0 ${caster_wheel_offset_z}"/>
     </joint>
 
 
-    <link name="$(arg prefix)caster_wheel">
+    <link name="$(arg frame_prefix)caster_wheel">
         <visual>
             <geometry>
                 <sphere radius="${caster_wheel_radius}"/>
@@ -179,7 +180,7 @@
         </xacro:inertial_sphere>
     </link>
 
-    <gazebo reference="$(arg prefix)caster_wheel">
+    <gazebo reference="$(arg frame_prefix)caster_wheel">
         <material>Gazebo/White</material>
         <mu1 value="0.001"/>
         <mu2 value="0.001"/>
