@@ -25,7 +25,7 @@ def generate_launch_description():
                     'worlds',
                     'ambiente_0.sdf'
                 ]),
-                TextSubstitution(text=' -r')
+                TextSubstitution(text=' -r -s')
             ]
         }.items(),
     )
