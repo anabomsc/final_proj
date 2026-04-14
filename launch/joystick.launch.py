@@ -22,7 +22,7 @@ def generate_launch_description():
     pkg_project = get_package_share_directory('final_proj')
 
     # Setup namespaces
-    name = "artbot"
+    name = "artbot1"
     namespace = "/" + name
 
     # External joystick teleop setup
