@@ -24,10 +24,10 @@ def generate_launch_description():
     pkg_project = get_package_share_directory('final_proj')
 
     # Setup for namespaces and frames
-    name = "artbot"
-    namespace = "/artbot"
-    frame_prefix = "artbot_"
-    topic_prefix = "artbot/"
+    name = "artbot1"
+    namespace = "/" + name
+    frame_prefix = name + "_"
+    topic_prefix = name + "/"
 
     # Process the URDF file
     xacro_file = os.path.join(pkg_project,'description','robot','robot.urdf.xacro')
