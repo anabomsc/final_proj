@@ -4,10 +4,8 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, RegisterEventHandler
 from launch.substitutions import LaunchConfiguration, Command, PythonExpression
-from launch.actions import IncludeLaunchDescription, GroupAction
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.event_handlers import OnProcessExit
-from launch_ros.actions import Node, PushRosNamespace
+from launch_ros.actions import Node
 from launch.conditions import IfCondition
 
 def generate_launch_description():
