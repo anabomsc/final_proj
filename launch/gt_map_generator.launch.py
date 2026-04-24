@@ -1,8 +1,6 @@
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess, RegisterEventHandler, EmitEvent, LogInfo
+from launch.actions import ExecuteProcess, RegisterEventHandler, LogInfo
 from launch.event_handlers import OnProcessExit
-from launch.events import Shutdown
-from launch_ros.actions import Node
 
 def generate_launch_description():
     ld = LaunchDescription()
