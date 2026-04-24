@@ -1,5 +1,6 @@
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess, RegisterEventHandler, LogInfo
+from launch.actions import ExecuteProcess, RegisterEventHandler, EmitEvent, LogInfo
+from launch.events import Shutdown
 from launch.event_handlers import OnProcessExit
 
 def generate_launch_description():
@@ -19,7 +20,7 @@ def generate_launch_description():
             '-s', 'libgazebo_map_creator.so', 
             world_path
         ],
-        output='screen'
+        output='screen',
     )
     ld.add_action(start_gazebo_plugin)
 
@@ -39,8 +40,10 @@ def generate_launch_description():
         event_handler=OnProcessExit(
             target_action=start_map_generator,
             on_exit=[
-                LogInfo(msg='Mapeamento pronto! Fechando simulação...'),
-                ExecuteProcess(cmd=['pkill', '-f', 'gazebo'], output='screen')
+                LogInfo(msg='Gerador de mapa finalizado. Fechando o Gazebo...'),
+                ExecuteProcess(cmd=['pkill', '-f', 'gazebo'], shell=True), #fecha somente gz
+                ExecuteProcess(cmd=['killall -9 gzserver gzclient'], shell=True), #corrige erro no gz de execs seguidas
+                EmitEvent(event=Shutdown()) #fecha tudo
             ],
         )
     )
