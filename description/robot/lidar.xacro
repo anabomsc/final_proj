@@ -58,6 +58,13 @@
             </lidar>
             <topic>/$(arg topic_prefix)scan</topic>
             <gz_frame_id>$(arg frame_prefix)laser_frame</gz_frame_id>
+
+            <!-- <noise>
+                <type>gaussian</type>
+                <mean>0.0</mean>
+                <stddev>0.01</stddev>
+            </noise> -->
+            
         </sensor>
     </gazebo>
 
