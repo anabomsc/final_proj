@@ -10,7 +10,7 @@ from launch.conditions import IfCondition
 
 def generate_launch_description():
     ld = LaunchDescription()
-    xy_offsets = [(0.0,0.0),(5.0,0.0)] # robot positions
+    xy_offsets = [(-4.0,-2.0),(8.5,-2.0)] # robot positions
 
     # Configuration
     declare_num_robots = DeclareLaunchArgument(
@@ -74,7 +74,8 @@ def generate_launch_description():
                 '-name', f'{name}',
                 '-x', str(xy_offsets[i][0]),
                 '-y', str(xy_offsets[i][1]),
-                '-z', '0.1'
+                '-z', '0.1',
+                '-Y', '3.1384'
             ],
             output='screen',
             condition=condition
