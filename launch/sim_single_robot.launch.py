@@ -47,14 +47,6 @@ def generate_launch_description():
     )
     ld.add_action(slam)
 
-    # Setup single robot teleop
-    teleop = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(pkg_project, 'launch', 'joystick.launch.py')),
-        launch_arguments={'use_sim_time': use_sim_time}.items(),
-    )
-    ld.add_action(teleop)
-
     # Setup rviz2 
     rviz = Node(
        package='rviz2',
