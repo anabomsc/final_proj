@@ -11,6 +11,8 @@ from launch.conditions import IfCondition
 def generate_launch_description():
     ld = LaunchDescription()
     xy_offsets = [(-4.0,-2.0),(13.5, 1.0)] # robot positions
+    yaw_offset = 3.1384
+    z_offset = 0.1
 
     # Configuration
     declare_num_robots = DeclareLaunchArgument(
@@ -51,7 +53,7 @@ def generate_launch_description():
         robot_description_config = Command([
             'xacro ', xacro_file,
             ' frame_prefix:=', frame_prefix,
-            ' topic_prefix:=', topic_prefix
+            ' topic_prefix:=', topic_prefix,
         ])
 
         #State publisher
@@ -74,8 +76,8 @@ def generate_launch_description():
                 '-name', f'{name}',
                 '-x', str(xy_offsets[i][0]),
                 '-y', str(xy_offsets[i][1]),
-                '-z', '0.1',
-                '-Y', '3.1384'
+                '-z', str(z_offset),
+                '-Y', str(yaw_offset)
             ],
             output='screen',
             condition=condition

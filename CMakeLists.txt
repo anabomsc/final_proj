@@ -39,7 +39,7 @@ install(
 )
 
 install(PROGRAMS
-  scripts/multi_robot_exp1.py
+  scripts/multi_robot_exp1.py scripts/relative_odom_publisher.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
