@@ -29,6 +29,24 @@ def generate_launch_description():
     num_robots = LaunchConfiguration('num_robots')
     ld.add_action(declare_num_robots)
 
+    declare_lidar_noise_mean = DeclareLaunchArgument(
+        'lidar_noise_mean',
+        default_value='0.0',
+        description='Mean of LiDAR gaussian noise'
+    )
+
+    declare_lidar_noise_stddev = DeclareLaunchArgument(
+        'lidar_noise_stddev',
+        default_value='0.0',
+        description='Standard deviation of LiDAR gaussian noise'
+    )
+
+    lidar_noise_mean = LaunchConfiguration('lidar_noise_mean')
+    lidar_noise_stddev = LaunchConfiguration('lidar_noise_stddev')
+
+    ld.add_action(declare_lidar_noise_mean)
+    ld.add_action(declare_lidar_noise_stddev)
+
     # Setup project paths
     pkg_project = get_package_share_directory('final_proj')
 
@@ -43,7 +61,10 @@ def generate_launch_description():
     multi_robot = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_project, 'launch', 'multi_robot_spawn.launch.py')),
-        launch_arguments={'use_sim_time': use_sim_time}.items(),
+        launch_arguments={'use_sim_time': use_sim_time,
+                          'num_robots': num_robots,
+                          'lidar_noise_mean': lidar_noise_mean,
+                          'lidar_noise_stddev': lidar_noise_stddev}.items(),
     )
     ld.add_action(multi_robot)
 
