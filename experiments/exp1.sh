@@ -22,10 +22,6 @@ cleanup() {
         echo "Stopping simulation..."
 
         kill -TERM -- -"$SIM_PID" 2>/dev/null || true
-
-        # kill "$SIM_PID" 2>/dev/null || true
-
-        # wait "$SIM_PID" 2>/dev/null || true
     fi
 }
 
@@ -55,7 +51,8 @@ source "$WORKSPACE/install/setup.bash"
 echo ""
 echo "Starting multi robot simulation $TIMESTAMP..."
 
-setsid ros2 launch final_proj sim_multi_robot.launch.py & # simulation runs in background
+setsid ros2 launch final_proj sim_multi_robot.launch.py \
+    lidar_noise_mean:=0.0 lidar_noise_stddev:=0.0 & # simulation runs in background
 
 SIM_PID=$! # stores background simulation process pid
 echo "Simulation PID: $SIM_PID"
