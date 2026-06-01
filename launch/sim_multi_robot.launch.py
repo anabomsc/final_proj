@@ -76,13 +76,5 @@ def generate_launch_description():
     )
     ld.add_action(multi_slam)
 
-    # Setup rviz2 
-    rviz = Node(
-       package='rviz2',
-       executable='rviz2',
-       arguments=['-d', os.path.join(pkg_project, 'config', 'sim_multi_robot.rviz')],
-    )
-    ld.add_action(rviz)
-
     # Launch!
     return ld
