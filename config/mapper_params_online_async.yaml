@@ -26,7 +26,7 @@ slam_toolbox:
     transform_timeout: 0.2
     tf_buffer_duration: 30.
     stack_size_to_use: 40000000
-    enable_interactive_mode: true
+    enable_interactive_mode: false
 
     # General Parameters
     use_scan_matching: true
