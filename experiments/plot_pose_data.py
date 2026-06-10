@@ -49,7 +49,8 @@ for robot_name, files in ROBOTS.items():
         gt["y"],
         linewidth=1,
         marker="o",
-        markersize=0.5,
+        markersize=3,
+        markevery=50,
         label="Ground Truth"
     )
 
@@ -57,6 +58,9 @@ for robot_name, files in ROBOTS.items():
         odom["x"],
         odom["y"],
         linewidth=1,
+        marker="x",
+        markersize=3,
+        markevery=50,
         label="Odometry"
     )
 
@@ -64,6 +68,9 @@ for robot_name, files in ROBOTS.items():
         slam["x"],
         slam["y"],
         linewidth=1,
+        marker="s",
+        markersize=3,
+        # markevery=50,
         label="SLAM"
     )
 
