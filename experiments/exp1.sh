@@ -59,7 +59,7 @@ echo "Simulation PID: $SIM_PID"
 
 # 2. Waits 15s for the simulation to finish setup
 echo "Waiting Gazebo and ROS graph..."
-sleep 20
+sleep 15
 
 # 3. Starts DiffDrive vs OdomPublisher pose translation
 echo ""
@@ -70,8 +70,8 @@ ros2 run final_proj relative_odom_publisher.py & # pose translation runs in back
 POSE_TRANSL_PID=$! # stores pose translation process pid
 echo "Relative OdomPublisher PID: $POSE_TRANSL_PID"
 
-# 4. Waits 2s for node to start publishing
-sleep 2
+# 4. Waits 4s for node to start publishing
+sleep 4
 
 # 5. Starting ros2bag recording
 echo ""
