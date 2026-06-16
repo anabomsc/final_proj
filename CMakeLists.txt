@@ -19,8 +19,6 @@ endif()
 find_package(ament_cmake REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
-find_package(gazebo_map_creator_interface REQUIRED)
-find_package(gazebo_map_creator REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
