@@ -5,6 +5,8 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch_ros.descriptions import ParameterFile
+from nav2_common.launch import RewrittenYaml
 
 def multiple_slam_instances(context, *args, **kwargs):
     slam_instances = []
@@ -18,9 +20,27 @@ def multiple_slam_instances(context, *args, **kwargs):
     slam_params_file = os.path.join(pkg_project,'config','mapper_params_online_async.yaml')
 
     for i in range(num_robots):
-        name = "artbot" + str(i+1)
-        namespace = "/" + name
-        frame_prefix = name + "_"
+        name = f'artbot{i+1}'
+        namespace = f'/{name}'
+        frame_prefix = f'{name}_'
+
+        param_substitutions = {
+            'use_sim_time': use_sim_time,
+            'odom_frame': f'{frame_prefix}odom',
+            'map_frame': f'{frame_prefix}map',
+            'base_frame': f'{frame_prefix}base_footprint',
+            'scan_topic': f'{namespace}/scan',
+        }
+
+        configured_params = ParameterFile(
+            RewrittenYaml(
+                source_file=slam_params_file,
+                root_key=name,
+                param_rewrites=param_substitutions,
+                convert_types=True,
+            ),
+            allow_substs=True,
+        )
 
         # SLAM Toolbox Mapping
         start_async_slam_toolbox_node = Node(
@@ -29,14 +49,7 @@ def multiple_slam_instances(context, *args, **kwargs):
             name='slam_toolbox',
             output='screen',
             namespace=namespace,
-            parameters=[
-                slam_params_file,
-                {'odom_frame': f'{frame_prefix}odom',
-                'map_frame': f'{frame_prefix}map',
-                'base_frame': f'{frame_prefix}base_footprint',
-                'scan_topic': f'{namespace}/scan',
-                'use_sim_time': use_sim_time}
-            ],
+            parameters=[configured_params],
             remappings=[
                 ('/map', f'{namespace}/map'),
                 ('/map_metadata', f'{namespace}/map_metadata'),
