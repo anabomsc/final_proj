@@ -40,12 +40,12 @@ LOG_FILE="${RESULTS_ROOT}/${TIMESTAMP}/exp1.log"
 mkdir -p "$RESULTS_DIR"
 
 # Logging setup
-echo "Logging to $LOG_FILE"
 exec > >(tee -i "$LOG_FILE") 2>&1
+echo "Logging to $LOG_FILE"
 
 # ROS2 and workspace source
 source /opt/ros/humble/setup.bash
-source "$WORKSPACE/install/setup.bash"
+source $WORKSPACE/install/setup.bash    
 
 # 1. Starting Gazebo/ROS 2 simulation
 echo ""
@@ -58,7 +58,7 @@ SIM_PID=$! # stores background simulation process pid
 echo "Simulation PID: $SIM_PID"
 
 # 2. Waits 15s for the simulation to finish setup
-echo "Waiting Gazebo and ROS graph..."
+echo "Waiting for Gazebo and ROS to finish setting up..."
 sleep 15
 
 # 3. Starts DiffDrive vs OdomPublisher pose translation
@@ -71,6 +71,7 @@ POSE_TRANSL_PID=$! # stores pose translation process pid
 echo "Relative OdomPublisher PID: $POSE_TRANSL_PID"
 
 # 4. Waits 4s for node to start publishing
+echo "Waiting pose plugin translation node to finish setting up..."
 sleep 4
 
 # 5. Starting ros2bag recording
@@ -89,6 +90,7 @@ BAG_PID=$! # stores background rosbag process pid
 echo "Rosbag PID: $BAG_PID"
 
 # 6. Waits 2s for rosbag to start recording
+echo "Waiting for rosbag to start recording..."
 sleep 2
 
 # 7. Starting multi robot trajectory node exp1
@@ -97,10 +99,10 @@ echo "Running experiment..."
 
 ros2 run final_proj multi_robot_exp1.py # script waits for it to finish
 
-echo ""
 echo "Experiment finished."
 
 # 8. Stopping rosbag recording
+echo ""
 echo "Stopping rosbag..."
 
 kill -INT $BAG_PID # kill the backgroung rosbag process
@@ -108,6 +110,7 @@ kill -INT $BAG_PID # kill the backgroung rosbag process
 wait $BAG_PID # script waits for it to die
 
 # 9. Waits 2s before result generation
+echo "Waiting rosbag to stop before result generation..."
 sleep 2
 
 # 10. Generating individual/parcial maps from each robot 
