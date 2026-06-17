@@ -36,9 +36,16 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
+file(GLOB SCRIPT_FILES "scripts/*")
 install(PROGRAMS
-  scripts/multi_robot_exp1.py scripts/relative_odom_publisher.py
-  DESTINATION lib/${PROJECT_NAME}
+  ${SCRIPT_FILES}
+  DESTINATION lib/${PROJECT_NAME}/scripts
+)
+
+file(GLOB EXP_FILES "experiments/*")
+install(PROGRAMS
+  ${EXP_FILES}
+  DESTINATION lib/${PROJECT_NAME}/experiments
 )
 
 ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/${PROJECT_NAME}.dsv.in")
