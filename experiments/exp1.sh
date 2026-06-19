@@ -83,7 +83,7 @@ rm -rf "$RESULTS_DIR/bag" # removes existing rosbag
 ros2 bag record \
     /artbot1/odom /artbot2/odom \
     /artbot1/gt_pose_rel /artbot2/gt_pose_rel \
-    /artbot1/pose /artbot2/pose \
+    /tf /tf_static \
     -o "$RESULTS_DIR/bag" & # rosbag runs in background
 
 BAG_PID=$! # stores background rosbag process pid
