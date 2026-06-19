@@ -70,7 +70,7 @@ for robot_name, files in ROBOTS.items():
         linewidth=1,
         marker="s",
         markersize=3,
-        # markevery=50,
+        markevery=50,
         label="SLAM"
     )
 
