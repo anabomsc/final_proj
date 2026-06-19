@@ -33,7 +33,7 @@
             <frame_id>$(arg frame_prefix)odom</frame_id>
             <child_frame_id>$(arg frame_prefix)base_link</child_frame_id>
             <odom_topic>/$(arg topic_prefix)odom</odom_topic>
-            <odom_publisher_frequency>30</odom_publisher_frequency>
+            <odom_publisher_frequency>20</odom_publisher_frequency>
             
             <tf_topic>/tf</tf_topic>
 
@@ -57,7 +57,7 @@
             <tf_topic>/$(arg topic_prefix)gt_pose_raw</tf_topic>
 
             <dimensions>2</dimensions>
-            <odom_publish_frequency>30</odom_publish_frequency>
+            <odom_publish_frequency>20</odom_publish_frequency>
             <gaussian_noise>0.0</gaussian_noise>
         </plugin>
 
