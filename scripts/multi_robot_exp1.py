@@ -14,7 +14,7 @@ class MultiRobotPreciseSequence(Node):
         super().__init__('multi_robot_exp1')
         self.executor = executor
         
-        # Ativa sincronização rigorosa com o relógio do Gazebo
+        # Sincronização com o relógio do Gazebo
         self.set_parameters([rclpy.parameter.Parameter('use_sim_time', value=True)])
         
         self.group = ReentrantCallbackGroup()
@@ -27,7 +27,7 @@ class MultiRobotPreciseSequence(Node):
         self.pose1 = {'x': 0.0, 'y': 0.0, 'yaw': 0.0}
         self.pose2 = {'x': 0.0, 'y': 0.0, 'yaw': 0.0}
         
-        # Assinaturas dos tópicos de Odometria (certifique-se de que correspondem aos seus namespaces)
+        # Sub dos tópicos de Odometria
         self.sub1 = self.create_subscription(Odometry, '/artbot1/odom', self.odom1_callback, 10, callback_group=self.group)
         self.sub2 = self.create_subscription(Odometry, '/artbot2/odom', self.odom2_callback, 10, callback_group=self.group)
         
@@ -57,13 +57,13 @@ class MultiRobotPreciseSequence(Node):
         return math.atan2(siny_cosp, cosy_cosp)
 
     def move_distance(self, pub, pose_ref, distance, speed=0.3):
-        """Move o robô para frente por uma distância métrica exata."""
+        """Move o robô para frente por uma distância métrica."""
         start_x = pose_ref['x']
         start_y = pose_ref['y']
         msg = Twist()
         msg.linear.x = float(speed)
         
-        rate = self.create_rate(20) # 20Hz sincronizado via Sim Time
+        rate = self.create_rate(20) # 20Hz sincronizado via sim time
         while rclpy.ok():
             current_dist = math.sqrt((pose_ref['x'] - start_x)**2 + (pose_ref['y'] - start_y)**2)
             if current_dist >= distance:
@@ -74,7 +74,7 @@ class MultiRobotPreciseSequence(Node):
         pub.publish(Twist()) # Parada imediata
 
     def rotate_angle(self, pub, pose_ref, angle_rad, speed=0.4):
-        """Gira o robô por um ângulo em radianos exato."""
+        """Gira o robô por um ângulo em radianos."""
         start_yaw = pose_ref['yaw']
         target_yaw = start_yaw + angle_rad
         
@@ -88,14 +88,14 @@ class MultiRobotPreciseSequence(Node):
         rate = self.create_rate(20)
         while rclpy.ok():
             error = target_yaw - pose_ref['yaw']
-            error = math.atan2(math.sin(error), math.cos(error)) # Normaliza erro
+            error = math.atan2(math.sin(error), math.cos(error)) # normaliza erro
             
-            if abs(error) < 0.03: # Tolerância de parada em radianos (~1.7 graus)
+            if abs(error) < 0.03: # tolerância de parada em radianos (~1.7 graus)
                 break
             pub.publish(msg)
             rate.sleep()
             
-        pub.publish(Twist()) # Parada imediata
+        pub.publish(Twist()) # parada imediata
 
     def routine_robot1(self):
         linear_speed_robot_1 = 3.0
