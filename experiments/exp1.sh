@@ -10,6 +10,14 @@ cleanup() {
     echo ""
     echo "Cleaning up..."
 
+    if [ -n "$POSE_TRANSL_PID" ]; then
+        echo "Stopping pose translation..."
+
+        kill -TERM -- -"$POSE_TRANSL_PID" 2>/dev/null || true
+
+        wait "$POSE_TRANSL_PID" 2>/dev/null || true
+    fi
+
     if [ -n "$BAG_PID" ]; then
         echo "Stopping rosbag..."
 
