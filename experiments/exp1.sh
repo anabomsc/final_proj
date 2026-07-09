@@ -63,9 +63,9 @@ sleep 15
 
 # 3. Starts DiffDrive vs OdomPublisher pose translation
 echo ""
-echo "Starting OdomPublisher translation to DiffDrive reference (relative OdomPub)..."
+echo "Starting OdomPublisher translation to DiffDrive reference..."
 
-ros2 run final_proj relative_odom_publisher.py & # pose translation runs in background
+setsid ros2 run final_proj plugin_reference_translation.py & # pose translation runs in background
 
 POSE_TRANSL_PID=$! # stores pose translation process pid
 echo "Relative OdomPublisher PID: $POSE_TRANSL_PID"
