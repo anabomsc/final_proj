@@ -4,6 +4,7 @@ import math
 
 import rclpy
 from rclpy.node import Node
+from rclpy.executors import ExternalShutdownException
 
 from geometry_msgs.msg import PoseArray
 from nav_msgs.msg import Odometry
@@ -35,7 +36,7 @@ class RelativeGroundTruth(Node):
 
     def __init__(self):
 
-        super().__init__('gt_relative_odom')
+        super().__init__('reference_translation')
 
         self.declare_parameter(
             'robot_names',
@@ -147,10 +148,14 @@ def main(args=None):
 
     node = RelativeGroundTruth()
 
-    rclpy.spin(node)
-
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
+    finally:
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == '__main__':
