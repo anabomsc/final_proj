@@ -10,7 +10,6 @@ import csv
 
 RESULTS_DIR = sys.argv[1]
 BAG_PATH = os.path.join(RESULTS_DIR, "bag")
-OUTPUT_CSV = os.path.join(RESULTS_DIR, "trajectory.csv")
 
 TOPICS = {
     "/artbot1/gt_pose_rel": "artbot1_gt.csv",
