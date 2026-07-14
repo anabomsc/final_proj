@@ -55,7 +55,7 @@ echo "Logging to $LOG_FILE"
 source /opt/ros/humble/setup.bash
 source $WORKSPACE/install/setup.bash    
 
-# 1. Starting Gazebo/ROS 2 simulation
+## Starting Gazebo/ROS 2 simulation
 echo ""
 echo "Starting multi robot simulation $TIMESTAMP..."
 
@@ -65,11 +65,11 @@ setsid ros2 launch final_proj sim_multi_robot.launch.py \
 SIM_PID=$! # stores background simulation process pid
 echo "Simulation PID: $SIM_PID"
 
-# 2. Waits 15s for the simulation to finish setup
+## Waits 15s for the simulation to finish setup
 echo "Waiting for Gazebo and ROS to finish setting up..."
 sleep 15
 
-# 3. Starts DiffDrive vs OdomPublisher pose translation
+## Starts DiffDrive vs OdomPublisher pose translation
 echo ""
 echo "Starting OdomPublisher translation to DiffDrive reference..."
 
@@ -78,11 +78,11 @@ setsid ros2 run final_proj plugin_reference_translation.py & # pose translation 
 POSE_TRANSL_PID=$! # stores pose translation process pid
 echo "Relative OdomPublisher PID: $POSE_TRANSL_PID"
 
-# 4. Waits 4s for node to start publishing
+## Waits 4s for node to start publishing
 echo "Waiting pose plugin translation node to finish setting up..."
 sleep 4
 
-# 5. Starting ros2bag recording
+## Starting ros2bag recording
 echo ""
 echo "Starting rosbag recording..."
 
@@ -97,11 +97,11 @@ ros2 bag record \
 BAG_PID=$! # stores background rosbag process pid
 echo "Rosbag PID: $BAG_PID"
 
-# 6. Waits 2s for rosbag to start recording
+## Waits 2s for rosbag to start recording
 echo "Waiting for rosbag to start recording..."
 sleep 2
 
-# 7. Starting multi robot trajectory node exp1
+## Starting multi robot trajectory node exp1
 echo ""
 echo "Running experiment..."
 
@@ -109,7 +109,7 @@ ros2 run final_proj multi_robot_exp1.py # script waits for it to finish
 
 echo "Experiment finished."
 
-# 8. Stopping rosbag recording
+## Stopping rosbag recording
 echo ""
 echo "Stopping rosbag..."
 
@@ -117,11 +117,11 @@ kill -INT $BAG_PID # kill the backgroung rosbag process
 
 wait $BAG_PID # script waits for it to die
 
-# 9. Waits 2s before result generation
+## Waits 2s before result generation
 echo "Waiting rosbag to stop before result generation..."
 sleep 2
 
-# 10. Generating individual/parcial maps from each robot 
+## Generating individual/partial maps from each robot 
 echo ""
 echo "Generating maps..."
 
@@ -130,14 +130,14 @@ ros2 service call artbot1/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
 ros2 service call artbot2/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
     "{name: {data: '${RESULTS_DIR}/artbot2_map_save'}}"
 
-# 11. Generating CSV and plots
+## Generating CSV and plots
 echo ""
 echo "Generating CSV..."
 
 python3 $PKG_DIR/experiments/extract_pose_data.py "$RESULTS_DIR"
 
 echo ""
-echo "Generating plot..."
+echo "Generating Plot Data..."
 
 python3 $PKG_DIR/experiments/plot_pose_data.py "$RESULTS_DIR"
 
