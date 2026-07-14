@@ -1,14 +1,20 @@
 #!/bin/bash
 # exp1.sh
 
-TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
-
 set -e # stops execution in case of errors
+
+LIDAR_NOISE_MEAN=${1:-0.0}
+LIDAR_NOISE_STDDEV=${2:-0.0}
+SESSION_DIR=${3:-"$HOME/mono_ws/results"}
+
+TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 
 cleanup() {
 
     echo ""
-    echo "Cleaning up..."
+    echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    echo "Experiment Cleanup"
+    echo ""
 
     if [ -n "$POSE_TRANSL_PID" ]; then
         echo "Stopping pose translation..."
@@ -31,6 +37,9 @@ cleanup() {
 
         kill -TERM -- -"$SIM_PID" 2>/dev/null || true
     fi
+
+    echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    echo ""
 }
 
 trap cleanup EXIT
@@ -39,28 +48,34 @@ trap cleanup EXIT
 WORKSPACE="$HOME/mono_ws"
 PKG_DIR="$WORKSPACE/src/final_proj"
 
-RESULTS_ROOT="$WORKSPACE/results"
-RESULTS_DIR="$RESULTS_ROOT/$TIMESTAMP"
-
-LOG_FILE="${RESULTS_ROOT}/${TIMESTAMP}/exp1.log"
-
 # Create results directory
-mkdir -p "$RESULTS_DIR"
+EXPERIMENTS_DIR="$SESSION_DIR/$TIMESTAMP"
+mkdir -p "$EXPERIMENTS_DIR"
 
-# Logging setup
-exec > >(tee -i "$LOG_FILE") 2>&1
-echo "Logging to $LOG_FILE"
+# Logging and session index
+# LOG_FILE="${SESSION_DIR}/exp1.log"
+# exec > >(tee -i "$LOG_FILE") 2>&1
 
 # ROS2 and workspace source
 source /opt/ros/humble/setup.bash
 source $WORKSPACE/install/setup.bash    
+
+## Session information: lidar noise and dir
+echo ""
+echo "-------------- EXPERIMENT INFO ----------------"
+echo "Timestamp: $TIMESTAMP"
+echo "Lidar noise mean: $LIDAR_NOISE_MEAN"
+echo "Lidar noise std dev: $LIDAR_NOISE_STDDEV"
+echo "Experiment results directory: $EXPERIMENTS_DIR"
+echo "-----------------------------------------------"
 
 ## Starting Gazebo/ROS 2 simulation
 echo ""
 echo "Starting multi robot simulation $TIMESTAMP..."
 
 setsid ros2 launch final_proj sim_multi_robot.launch.py \
-    lidar_noise_mean:=0.0 lidar_noise_stddev:=0.0 & # simulation runs in background
+    lidar_noise_mean:=${LIDAR_NOISE_MEAN} \
+    lidar_noise_stddev:=${LIDAR_NOISE_STDDEV} & # simulation runs in background
 
 SIM_PID=$! # stores background simulation process pid
 echo "Simulation PID: $SIM_PID"
@@ -86,13 +101,13 @@ sleep 4
 echo ""
 echo "Starting rosbag recording..."
 
-rm -rf "$RESULTS_DIR/bag" # removes existing rosbag
+rm -rf "$EXPERIMENTS_DIR/bag" # removes existing rosbag
 
 ros2 bag record \
     /artbot1/odom /artbot2/odom \
     /artbot1/gt_pose_rel /artbot2/gt_pose_rel \
     /tf /tf_static \
-    -o "$RESULTS_DIR/bag" & # rosbag runs in background
+    -o "$EXPERIMENTS_DIR/bag" & # rosbag runs in background
 
 BAG_PID=$! # stores background rosbag process pid
 echo "Rosbag PID: $BAG_PID"
@@ -126,30 +141,32 @@ echo ""
 echo "Generating maps..."
 
 ros2 service call artbot1/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
-    "{name: {data: '${RESULTS_DIR}/artbot1_map_save'}}"
+    "{name: {data: '${EXPERIMENTS_DIR}/artbot1_map_save'}}"
 ros2 service call artbot2/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
-    "{name: {data: '${RESULTS_DIR}/artbot2_map_save'}}"
+    "{name: {data: '${EXPERIMENTS_DIR}/artbot2_map_save'}}"
 
 ## Generating CSV and plots
 echo ""
 echo "Generating CSV..."
 
-python3 $PKG_DIR/experiments/extract_pose_data.py "$RESULTS_DIR"
+python3 $PKG_DIR/experiments/extract_pose_data.py "$EXPERIMENTS_DIR"
 
 echo ""
 echo "Generating Plot Data..."
 
-python3 $PKG_DIR/experiments/plot_pose_data.py "$RESULTS_DIR"
+python3 $PKG_DIR/experiments/plot_pose_data.py "$EXPERIMENTS_DIR"
 
 ## Generate relative pose information
 echo ""
 echo "Generating Relative Pose Info..."
 
-ros2 run final_proj relative_pose_logger.py --ros-args -p output_file:="${RESULTS_DIR}/relative_poses.json"
+ros2 run final_proj relative_pose_logger.py --ros-args -p output_file:="${EXPERIMENTS_DIR}/relative_poses.json"
 
 echo ""
-echo "Finished."
+echo "Experiment $TIMESTAMP Pipeline Completed"
 
-echo "Trajectory image file saved to: $RESULTS_DIR/trajectory.png"
-echo "Trajectory csv file saved to: $RESULTS_DIR/trajectory.csv"
-echo "Relative pose file saved to: $RESULTS_DIR/relative_poses.json"
+echo "Trajectory image file saved to: $EXPERIMENTS_DIR/trajectory.png"
+echo "Trajectory csv file saved to: $EXPERIMENTS_DIR/trajectory.csv"
+echo "Relative pose file saved to: $EXPERIMENTS_DIR/relative_poses.json"
+echo "---------------------------------------------"
+echo ""
