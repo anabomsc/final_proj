@@ -150,5 +150,6 @@ ros2 run final_proj relative_pose_logger.py --ros-args -p output_file:="${RESULT
 echo ""
 echo "Finished."
 
-echo "Trajectory image: $RESULTS_DIR/trajectory.png"
-echo "Trajectory csv: $RESULTS_DIR/trajectory.csv"
+echo "Trajectory image file saved to: $RESULTS_DIR/trajectory.png"
+echo "Trajectory csv file saved to: $RESULTS_DIR/trajectory.csv"
+echo "Relative pose file saved to: $RESULTS_DIR/relative_poses.json"
