@@ -141,6 +141,12 @@ echo "Generating Plot Data..."
 
 python3 $PKG_DIR/experiments/plot_pose_data.py "$RESULTS_DIR"
 
+## Generate relative pose information
+echo ""
+echo "Generating Relative Pose Info..."
+
+ros2 run final_proj relative_pose_logger.py --ros-args -p output_file:="${RESULTS_DIR}/relative_poses.json"
+
 echo ""
 echo "Finished."
 
