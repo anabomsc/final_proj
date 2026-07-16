@@ -57,15 +57,15 @@
                     <min>0.3</min>
                     <max>12</max>
                 </range>
+
+                <noise>
+                    <type>gaussian</type>
+                    <mean>$(arg lidar_noise_mean)</mean>
+                    <stddev>$(arg lidar_noise_stddev)</stddev>
+                </noise>
             </lidar>
             <topic>/$(arg topic_prefix)scan</topic>
             <gz_frame_id>$(arg frame_prefix)laser_frame</gz_frame_id>
-
-            <noise>
-                <type>gaussian</type>
-                <mean>$(arg lidar_noise_mean)</mean>
-                <stddev>$(arg lidar_noise_stddev)</stddev>
-            </noise>
             
         </sensor>
     </gazebo>
