@@ -138,12 +138,11 @@ class RelativePoseLogger(Node):
         )
 
         return {
-            "distance": distance,
             "translation": {
                 "x": x_rel,
                 "y": y_rel
             },
-            "yaw": yaw_rel
+            "rotation": yaw_rel
         }
 
     def compute_relative_poses(self):
@@ -163,12 +162,11 @@ class RelativePoseLogger(Node):
 
             data[robot][robot] = {
 
-                "position": {
+                "translation": {
                     "x": pose.position.x,
                     "y": pose.position.y
                 },
-
-                "yaw": self.get_yaw(pose)
+                "rotation": self.get_yaw(pose)
             }
 
         # Informações relativas (ground truth)
