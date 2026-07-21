@@ -104,7 +104,7 @@ class RelativePoseLogger(Node):
             q.w
         ])
 
-        return yaw
+        return yaw #rad
 
     def normalize_angle(self, angle):
 
@@ -113,30 +113,28 @@ class RelativePoseLogger(Node):
             math.cos(angle)
         )
 
-    def relative_pose(self, pose_ref, pose_target):
+    def relative_pose(self, pose_current, pose_other):
 
-        xr = pose_ref.position.x
-        yr = pose_ref.position.y
+        xc = pose_current.position.x
+        yc = pose_current.position.y
 
-        xt = pose_target.position.x
-        yt = pose_target.position.y
+        xo = pose_other.position.x
+        yo = pose_other.position.y
 
-        yaw_ref = self.get_yaw(pose_ref)
-        yaw_target = self.get_yaw(pose_target)
+        yaw_c = self.get_yaw(pose_current)
+        yaw_o = self.get_yaw(pose_other)
 
-        dx = xt - xr
-        dy = yt - yr
+        dx = xo - xc
+        dy = yo - yc
 
-        c = math.cos(yaw_ref)
-        s = math.sin(yaw_ref)
+        c = math.cos(yaw_c)
+        s = math.sin(yaw_c)
 
         x_rel = c * dx + s * dy
         y_rel = -s * dx + c * dy
 
-        distance = math.sqrt(dx ** 2 + dy ** 2)
-
         yaw_rel = self.normalize_angle(
-            yaw_target - yaw_ref
+            yaw_o - yaw_c
         )
 
         return {
