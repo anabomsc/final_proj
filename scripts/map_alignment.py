@@ -72,10 +72,8 @@ class MapAlignment(Node):
         self.gt_poses = {}
         self.odom_poses = {}
         self.local_maps = {}
-        self.map_publishers = {}
         self.tf_broadcaster = TransformBroadcaster(self)
 
-        first_robot = self.robot_names[0]
         for robot in self.robot_names:
             gt_topic = f"/{robot}/gt_pose_raw"
             odom_topic = f"/{robot}/odom"
@@ -105,14 +103,6 @@ class MapAlignment(Node):
                 10
             )
             self.get_logger().info(f"Subscribed to {local_map_topic}")
-            
-            if robot is not first_robot:
-                self.map_publishers[robot] = self.create_publisher(
-                    OccupancyGrid,
-                    aligned_map_topic,
-                    10
-                )
-                self.get_logger().info(f"Publishing to {aligned_map_topic}")
 
     def gt_callback(self, msg, robot):
         if not msg.poses:
@@ -138,10 +128,6 @@ class MapAlignment(Node):
 
             for robot, T in transformations.items():
                 self.publish_map_transform(robot, T)
-                aligned = self.map_alignment(
-                    self.local_maps[robot], T
-                )
-                self.map_publishers[robot].publish(aligned)
 
     def publish_reference_tf(self):
         tf = TransformStamped()
@@ -266,59 +252,6 @@ class MapAlignment(Node):
             transformations[robot] = T
     
         return transformations
-
-    def map_alignment(self, grid_robot, T):
-        aligned = OccupancyGrid()
-
-        aligned.header.stamp = grid_robot.header.stamp
-        aligned.header.frame_id = "merged_map"
-
-        aligned.info.map_load_time = grid_robot.info.map_load_time
-        aligned.info.resolution = grid_robot.info.resolution
-        aligned.info.width = grid_robot.info.width
-        aligned.info.height = grid_robot.info.height
-        
-        origin = grid_robot.info.origin
-        origin_T = transform_matrix(
-            origin.position.x, origin.position.y, get_yaw(origin)
-        )
-        new_origin = matrix_multiplication(T, origin_T)
-        tx, ty, yaw = matrix2pose(new_origin)
-        qx, qy, qz, qw = yaw_to_quaternion(yaw)
-
-        aligned.info.origin.position.x = tx
-        aligned.info.origin.position.y = ty
-        aligned.info.origin.orientation.x = qx
-        aligned.info.origin.orientation.y = qy
-        aligned.info.origin.orientation.z = qz
-        aligned.info.origin.orientation.w = qw
-
-        aligned.data = [-1]*(grid_robot.info.width*grid_robot.info.height)
-        for y in range(grid_robot.info.height):
-            for x in range(grid_robot.info.width):
-                idx = y*grid_robot.info.width + x
-                value = grid_robot.data[idx]
-
-                cell_x = (x + 0.5) * grid_robot.info.resolution
-                cell_y = (y + 0.5) * grid_robot.info.resolution
-
-                wx = origin_T[0][0] * cell_x + origin_T[0][1] * cell_y + origin_T[0][2]
-                wy = origin_T[1][0] * cell_x + origin_T[1][1] * cell_y + origin_T[1][2]
-
-                nx = T[0][0]*wx + T[0][1]*wy + T[0][2]
-                ny = T[1][0]*wx + T[1][1]*wy + T[1][2]
-                new_origin_inv = inverse_transform(new_origin)
-                cx = new_origin_inv[0][0] * nx + new_origin_inv[0][1] * ny + new_origin_inv[0][2]
-                cy = new_origin_inv[1][0] * nx + new_origin_inv[1][1] * ny + new_origin_inv[1][2]
-
-                ix = round(cx / grid_robot.info.resolution - 0.5)
-                iy = round(cy / grid_robot.info.resolution - 0.5)
-
-                if 0 <= ix < grid_robot.info.width and 0 <= iy < grid_robot.info.height:
-
-                    aligned.data[iy*grid_robot.info.width+ix] = value
-        
-        return aligned
 
 def main(args=None):
 
