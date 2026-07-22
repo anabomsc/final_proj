@@ -6,8 +6,9 @@ import rclpy
 from rclpy.node import Node
 from rclpy.executors import ExternalShutdownException
 
-from geometry_msgs.msg import PoseArray
+from geometry_msgs.msg import PoseArray, TransformStamped
 from nav_msgs.msg import Odometry, OccupancyGrid
+from tf2_ros import TransformBroadcaster
 from tf_transformations import euler_from_quaternion, quaternion_from_euler
 
 # Utils
@@ -72,6 +73,7 @@ class MapAlignment(Node):
         self.odom_poses = {}
         self.local_maps = {}
         self.map_publishers = {}
+        self.tf_broadcaster = TransformBroadcaster(self)
 
         first_robot = self.robot_names[0]
         for robot in self.robot_names:
@@ -132,13 +134,48 @@ class MapAlignment(Node):
         if (gt_poses_ok and odom_poses_ok and local_maps_ok):
             alignment_data = self.compute_alignment_data()
             transformations = self.compute_transformations(alignment_data)
+            self.publish_reference_tf()
 
             for robot, T in transformations.items():
+                self.publish_map_transform(robot, T)
                 aligned = self.map_alignment(
-                    self.local_maps[self.robot_names[0]], self.local_maps[robot], T
+                    self.local_maps[robot], T
                 )
-
                 self.map_publishers[robot].publish(aligned)
+
+    def publish_reference_tf(self):
+        tf = TransformStamped()
+
+        tf.header.stamp = self.get_clock().now().to_msg()
+        tf.header.frame_id = "merged_map"
+        tf.child_frame_id = f"{self.robot_names[0]}_map"
+
+        tf.transform.translation.x = 0.0
+        tf.transform.translation.y = 0.0
+        tf.transform.translation.z = 0.0
+        tf.transform.rotation.w = 1.0
+
+        self.tf_broadcaster.sendTransform(tf)
+
+    def publish_map_transform(self, robot, T):
+        tf = TransformStamped()
+
+        tx, ty, yaw = matrix2pose(T)
+        qx, qy, qz, qw = yaw_to_quaternion(yaw)
+
+        tf.header.stamp = self.get_clock().now().to_msg()
+        tf.header.frame_id = "merged_map"
+        tf.child_frame_id = f"{robot}_map"
+
+        tf.transform.translation.x = tx
+        tf.transform.translation.y = ty
+        tf.transform.translation.z = 0.0
+        tf.transform.rotation.x = qx
+        tf.transform.rotation.y = qy
+        tf.transform.rotation.z = qz
+        tf.transform.rotation.w = qw
+
+        self.tf_broadcaster.sendTransform(tf)
 
     def relative_pose(self, pose_current, pose_other):
         xc = pose_current.position.x
@@ -230,11 +267,11 @@ class MapAlignment(Node):
     
         return transformations
 
-    def map_alignment(self, grid_ref, grid_robot, T):
+    def map_alignment(self, grid_robot, T):
         aligned = OccupancyGrid()
 
         aligned.header.stamp = grid_robot.header.stamp
-        aligned.header.frame_id = grid_ref.header.frame_id
+        aligned.header.frame_id = "merged_map"
 
         aligned.info.map_load_time = grid_robot.info.map_load_time
         aligned.info.resolution = grid_robot.info.resolution
