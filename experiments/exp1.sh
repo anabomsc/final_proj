@@ -160,7 +160,7 @@ python3 $PKG_DIR/experiments/plot_pose_data.py "$EXPERIMENTS_DIR"
 echo ""
 echo "Generating Aligned Maps..."
 
-ros2 run final_proj map_alignment.py
+ros2 run final_proj map_alignment.py --ros-args -p use_sim_time:=true
 
 echo ""
 echo "Experiment $TIMESTAMP Pipeline Completed"
