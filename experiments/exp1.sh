@@ -156,11 +156,11 @@ echo "Generating Plot Data..."
 
 python3 $PKG_DIR/experiments/plot_pose_data.py "$EXPERIMENTS_DIR"
 
-## Generate relative pose information
+## Generate aligned maps
 echo ""
-echo "Generating Relative Pose Info..."
+echo "Generating Aligned Maps..."
 
-ros2 run final_proj relative_pose_logger.py --ros-args -p output_file:="${EXPERIMENTS_DIR}/relative_poses.json"
+ros2 run final_proj map_alignment.py
 
 echo ""
 echo "Experiment $TIMESTAMP Pipeline Completed"
