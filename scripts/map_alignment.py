@@ -257,9 +257,6 @@ class MapAlignment(Node):
         aligned.info.origin.orientation.w = qw
 
         aligned.data = [-1]*(grid_robot.info.width*grid_robot.info.height)
-        ox = grid_robot.info.origin.position.x
-        oy = grid_robot.info.origin.position.y
-
         for y in range(grid_robot.info.height):
             for x in range(grid_robot.info.width):
                 idx = y*grid_robot.info.width + x
