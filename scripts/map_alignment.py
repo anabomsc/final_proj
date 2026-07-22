@@ -7,7 +7,7 @@ from rclpy.node import Node
 from rclpy.executors import ExternalShutdownException
 
 from geometry_msgs.msg import PoseArray, TransformStamped
-from nav_msgs.msg import Odometry, OccupancyGrid
+from nav_msgs.msg import Odometry
 from tf2_ros import TransformBroadcaster
 from tf_transformations import euler_from_quaternion, quaternion_from_euler
 
@@ -71,14 +71,11 @@ class MapAlignment(Node):
         # Entradas
         self.gt_poses = {}
         self.odom_poses = {}
-        self.local_maps = {}
         self.tf_broadcaster = TransformBroadcaster(self)
 
         for robot in self.robot_names:
             gt_topic = f"/{robot}/gt_pose_raw"
             odom_topic = f"/{robot}/odom"
-            local_map_topic = f"/{robot}/map"
-            aligned_map_topic = f"/{robot}/map_aligned"
 
             self.create_subscription(
                 PoseArray,
@@ -96,32 +93,21 @@ class MapAlignment(Node):
             )
             self.get_logger().info(f"Subscribed to {odom_topic}")
 
-            self.create_subscription(
-                OccupancyGrid,
-                local_map_topic,
-                lambda msg, name=robot: self.map_callback(msg, name),
-                10
-            )
-            self.get_logger().info(f"Subscribed to {local_map_topic}")
-
     def gt_callback(self, msg, robot):
         if not msg.poses:
             return
         self.gt_poses[robot] = msg.poses[0]
+        self.publish_transforms()
 
     def odom_callback(self, msg, robot):
         self.odom_poses[robot] = msg.pose.pose
+        self.publish_transforms()
 
-    def map_callback(self, msg, robot):
-        self.local_maps[robot] = msg
-        self.check_ready()
-
-    def check_ready(self):
+    def publish_transforms(self):
         gt_poses_ok = len(self.gt_poses) == len(self.robot_names)
         odom_poses_ok = len(self.odom_poses) == len(self.robot_names)
-        local_maps_ok = len(self.local_maps) == len(self.robot_names)
 
-        if (gt_poses_ok and odom_poses_ok and local_maps_ok):
+        if (gt_poses_ok and odom_poses_ok):
             alignment_data = self.compute_alignment_data()
             transformations = self.compute_transformations(alignment_data)
             self.publish_reference_tf()
