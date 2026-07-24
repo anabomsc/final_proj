@@ -9,6 +9,30 @@ SESSION_DIR=${3:-"$HOME/mono_ws/results"}
 
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 
+stop_process_group(){
+    local pid=$1
+    local name=$2
+
+    [ -z "$pid" ] && return
+
+    echo "Stopping $name..."
+
+    kill -INT -- -"$pid" 2>/dev/null || true
+
+    for i in {1..20}; do
+        if ! kill -0 "$pid" 2>/dev/null; then
+            return
+        fi
+        sleep 0.5
+    done
+
+    echo "$name did not stop, forcing..."
+
+    kill -TERM -- -"$pid" 2>/dev/null || true
+    sleep 2
+    kill -KILL -- -"$pid" 2>/dev/null || true
+}
+
 cleanup() {
 
     echo ""
@@ -16,27 +40,10 @@ cleanup() {
     echo "Experiment Cleanup"
     echo ""
 
-    if [ -n "$POSE_TRANSL_PID" ]; then
-        echo "Stopping pose translation..."
-
-        kill -TERM -- -"$POSE_TRANSL_PID" 2>/dev/null || true
-
-        wait "$POSE_TRANSL_PID" 2>/dev/null || true
-    fi
-
-    if [ -n "$BAG_PID" ]; then
-        echo "Stopping rosbag..."
-
-        kill -INT "$BAG_PID" 2>/dev/null || true
-
-        wait "$BAG_PID" 2>/dev/null || true
-    fi
-
-    if [ -n "$SIM_PID" ]; then
-        echo "Stopping simulation..."
-
-        kill -TERM -- -"$SIM_PID" 2>/dev/null || true
-    fi
+    stop_process_group "$MAP_FUSE" "map fusion"
+    stop_process_group "$MAP_ALIGN" "map alignment"
+    stop_process_group "$POSE_TRANSL_PID" "pose translation"
+    stop_process_group "$SIM_PID" "simulation"
 
     echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     echo ""
@@ -131,6 +138,7 @@ echo "Stopping rosbag..."
 kill -INT $BAG_PID # kill the backgroung rosbag process
 
 wait $BAG_PID # script waits for it to die
+unset BAG_PID
 
 ## Waits 2s before result generation
 echo "Waiting rosbag to stop before result generation..."
@@ -138,12 +146,38 @@ sleep 2
 
 ## Generating individual/partial maps from each robot 
 echo ""
-echo "Generating maps..."
+echo "Saving local maps..."
 
 ros2 service call artbot1/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
     "{name: {data: '${EXPERIMENTS_DIR}/artbot1_map_save'}}"
 ros2 service call artbot2/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
     "{name: {data: '${EXPERIMENTS_DIR}/artbot2_map_save'}}"
+
+## Generate aligned maps
+echo ""
+echo "Generating Aligned Maps..."
+
+ros2 run final_proj map_alignment.py --ros-args -p use_sim_time:=true &
+
+MAP_ALIGN=$! # stores map alignment process pid
+echo "Map Alignment PID: $MAP_ALIGN"
+
+## Waits 4s for node to start publishing
+echo "Waiting map_alignment node to finish setting up..."
+sleep 4
+
+## Generate merged map
+echo ""
+echo "Generating Merged Map..."
+
+ros2 run final_proj map_fusion.py --ros-args -p use_sim_time:=true &
+
+MAP_FUSE=$! # stores map alignment process pid
+echo "Map Fusion PID: $MAP_FUSE"
+
+## Waits 4s for node to start publishing
+echo "Waiting map_fusion node to finish setting up..."
+sleep 4
 
 ## Generating CSV and plots
 echo ""
@@ -156,11 +190,11 @@ echo "Generating Plot Data..."
 
 python3 $PKG_DIR/experiments/plot_pose_data.py "$EXPERIMENTS_DIR"
 
-## Generate aligned maps
+## Generating global merged map
 echo ""
-echo "Generating Aligned Maps..."
+echo "Saving merged map..."
 
-ros2 run final_proj map_alignment.py --ros-args -p use_sim_time:=true
+ros2 run nav2_map_server map_saver_cli -f ${EXPERIMENTS_DIR}/merged_map_save -t /merged_map
 
 echo ""
 echo "Experiment $TIMESTAMP Pipeline Completed"
