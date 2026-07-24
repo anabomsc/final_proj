@@ -7,9 +7,11 @@ from rclpy.node import Node
 from rclpy.executors import ExternalShutdownException
 
 from geometry_msgs.msg import PoseArray, TransformStamped
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import Odometry, OccupancyGrid
 from tf2_ros import TransformBroadcaster
 from tf_transformations import euler_from_quaternion, quaternion_from_euler
+
+from rclpy.qos import QoSProfile, HistoryPolicy, ReliabilityPolicy, DurabilityPolicy
 
 # Utils
 def get_yaw(pose):
@@ -68,14 +70,24 @@ class MapAlignment(Node):
             "artbot2"
         ]
 
+        map_qos = QoSProfile(
+            history=HistoryPolicy.KEEP_LAST, depth=1,
+            reliability=ReliabilityPolicy.RELIABLE,
+            durability=DurabilityPolicy.TRANSIENT_LOCAL,
+        )
+
         # Entradas
         self.gt_poses = {}
         self.odom_poses = {}
+        self.local_maps = {}
+        self.map_publishers = {}
         self.tf_broadcaster = TransformBroadcaster(self)
 
         for robot in self.robot_names:
             gt_topic = f"/{robot}/gt_pose_raw"
             odom_topic = f"/{robot}/odom"
+            local_map_topic = f"/{robot}/map"
+            aligned_map_topic = f"/{robot}/map_aligned"
 
             self.create_subscription(
                 PoseArray,
@@ -93,6 +105,21 @@ class MapAlignment(Node):
             )
             self.get_logger().info(f"Subscribed to {odom_topic}")
 
+            self.create_subscription(
+                OccupancyGrid,
+                local_map_topic,
+                lambda msg, name=robot: self.map_callback(msg, name),
+                10
+            )
+            self.get_logger().info(f"Subscribed to {local_map_topic}")
+
+            self.map_publishers[robot] = self.create_publisher(
+                OccupancyGrid,
+                aligned_map_topic,
+                map_qos,
+            )
+            self.get_logger().info(f"Publishing to {aligned_map_topic}")
+
     def gt_callback(self, msg, robot):
         if not msg.poses:
             return
@@ -103,20 +130,30 @@ class MapAlignment(Node):
         self.odom_poses[robot] = msg.pose.pose
         self.publish_transforms()
 
+    def map_callback(self, msg, robot):
+        self.local_maps[robot] = msg
+        self.publish_transforms()
+
     def publish_transforms(self):
         gt_poses_ok = len(self.gt_poses) == len(self.robot_names)
         odom_poses_ok = len(self.odom_poses) == len(self.robot_names)
+        local_maps_ok = len(self.local_maps) == len(self.robot_names)
 
-        if (gt_poses_ok and odom_poses_ok):
+        if (gt_poses_ok and odom_poses_ok and local_maps_ok):
             alignment_data = self.compute_alignment_data()
             transformations = self.compute_transformations(alignment_data)
-            self.publish_reference_tf()
+            self.publish_reference_tf(self.local_maps[self.robot_names[0]])
 
             for robot, T in transformations.items():
                 self.publish_map_transform(robot, T)
+                aligned = self.map_alignment(
+                    self.local_maps[robot], T
+                )
+                self.map_publishers[robot].publish(aligned)
 
-    def publish_reference_tf(self):
+    def publish_reference_tf(self, map_ref):
         tf = TransformStamped()
+        aligned = OccupancyGrid()
 
         tf.header.stamp = self.get_clock().now().to_msg()
         tf.header.frame_id = "merged_map"
@@ -127,7 +164,11 @@ class MapAlignment(Node):
         tf.transform.translation.z = 0.0
         tf.transform.rotation.w = 1.0
 
+        aligned = map_ref
+        aligned.header.frame_id = "merged_map"
+
         self.tf_broadcaster.sendTransform(tf)
+        self.map_publishers[self.robot_names[0]].publish(aligned)
 
     def publish_map_transform(self, robot, T):
         tf = TransformStamped()
@@ -238,6 +279,59 @@ class MapAlignment(Node):
             transformations[robot] = T
     
         return transformations
+
+    def map_alignment(self, grid_robot, T):
+        aligned = OccupancyGrid()
+
+        aligned.header.stamp = grid_robot.header.stamp
+        aligned.header.frame_id = "merged_map"
+
+        aligned.info.map_load_time = grid_robot.info.map_load_time
+        aligned.info.resolution = grid_robot.info.resolution
+        aligned.info.width = grid_robot.info.width
+        aligned.info.height = grid_robot.info.height
+        
+        origin = grid_robot.info.origin
+        origin_T = transform_matrix(
+            origin.position.x, origin.position.y, get_yaw(origin)
+        )
+        new_origin = matrix_multiplication(T, origin_T)
+        tx, ty, yaw = matrix2pose(new_origin)
+        qx, qy, qz, qw = yaw_to_quaternion(yaw)
+
+        aligned.info.origin.position.x = tx
+        aligned.info.origin.position.y = ty
+        aligned.info.origin.orientation.x = qx
+        aligned.info.origin.orientation.y = qy
+        aligned.info.origin.orientation.z = qz
+        aligned.info.origin.orientation.w = qw
+
+        aligned.data = [-1]*(grid_robot.info.width*grid_robot.info.height)
+        for y in range(grid_robot.info.height):
+            for x in range(grid_robot.info.width):
+                idx = y*grid_robot.info.width + x
+                value = grid_robot.data[idx]
+
+                cell_x = (x + 0.5) * grid_robot.info.resolution
+                cell_y = (y + 0.5) * grid_robot.info.resolution
+
+                wx = origin_T[0][0] * cell_x + origin_T[0][1] * cell_y + origin_T[0][2]
+                wy = origin_T[1][0] * cell_x + origin_T[1][1] * cell_y + origin_T[1][2]
+
+                nx = T[0][0]*wx + T[0][1]*wy + T[0][2]
+                ny = T[1][0]*wx + T[1][1]*wy + T[1][2]
+                new_origin_inv = inverse_transform(new_origin)
+                cx = new_origin_inv[0][0] * nx + new_origin_inv[0][1] * ny + new_origin_inv[0][2]
+                cy = new_origin_inv[1][0] * nx + new_origin_inv[1][1] * ny + new_origin_inv[1][2]
+
+                ix = round(cx / grid_robot.info.resolution - 0.5)
+                iy = round(cy / grid_robot.info.resolution - 0.5)
+
+                if 0 <= ix < grid_robot.info.width and 0 <= iy < grid_robot.info.height:
+
+                    aligned.data[iy*grid_robot.info.width+ix] = value
+        
+        return aligned
 
 def main(args=None):
 
