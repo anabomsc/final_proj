@@ -11,6 +11,7 @@ from tf_transformations import euler_from_quaternion
 import math
 
 from rclpy.qos import QoSProfile, HistoryPolicy, ReliabilityPolicy, DurabilityPolicy
+from rclpy._rclpy_pybind11 import RCLError
 
 class MapFusion(Node):
     def __init__(self):
@@ -54,7 +55,10 @@ class MapFusion(Node):
             for robot in self.robot_names[1:]:
                 merged_map = self.map_fusion(merged_map, self.local_maps[robot])
 
-            self.merged_map_publisher.publish(merged_map)
+            try:
+                self.merged_map_publisher.publish(merged_map)
+            except RCLError:
+                return
 
     def get_transform(self, source_frame):
         try:

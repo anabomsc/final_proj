@@ -40,10 +40,10 @@ cleanup() {
     echo "Experiment Cleanup"
     echo ""
 
-    stop_process_group "$MAP_FUSE" "map fusion"
-    stop_process_group "$MAP_ALIGN" "map alignment"
-    stop_process_group "$POSE_TRANSL_PID" "pose translation"
-    stop_process_group "$SIM_PID" "simulation"
+    stop_process_group "$MAP_FUSE" "Map Fusion"
+    stop_process_group "$MAP_ALIGN" "Map Alignment"
+    stop_process_group "$POSE_TRANSL_PID" "Pose Plugin Translation"
+    stop_process_group "$SIM_PID" "Simulation"
 
     echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     echo ""
@@ -157,7 +157,7 @@ ros2 service call artbot2/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
 echo ""
 echo "Generating Aligned Maps..."
 
-ros2 run final_proj map_alignment.py --ros-args -p use_sim_time:=true &
+setsid ros2 run final_proj map_alignment.py --ros-args -p use_sim_time:=true &
 
 MAP_ALIGN=$! # stores map alignment process pid
 echo "Map Alignment PID: $MAP_ALIGN"
@@ -170,7 +170,7 @@ sleep 4
 echo ""
 echo "Generating Merged Map..."
 
-ros2 run final_proj map_fusion.py --ros-args -p use_sim_time:=true &
+setsid ros2 run final_proj map_fusion.py --ros-args -p use_sim_time:=true &
 
 MAP_FUSE=$! # stores map alignment process pid
 echo "Map Fusion PID: $MAP_FUSE"

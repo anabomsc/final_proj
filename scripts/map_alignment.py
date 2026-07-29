@@ -12,6 +12,7 @@ from tf2_ros import TransformBroadcaster
 from tf_transformations import euler_from_quaternion, quaternion_from_euler
 
 from rclpy.qos import QoSProfile, HistoryPolicy, ReliabilityPolicy, DurabilityPolicy
+from rclpy._rclpy_pybind11 import RCLError
 
 # Utils
 def get_yaw(pose):
@@ -149,7 +150,11 @@ class MapAlignment(Node):
                 aligned = self.map_alignment(
                     self.local_maps[robot], T
                 )
-                self.map_publishers[robot].publish(aligned)
+
+                try:
+                    self.map_publishers[robot].publish(aligned)
+                except RCLError:
+                    return
 
     def publish_reference_tf(self, map_ref):
         tf = TransformStamped()
@@ -167,8 +172,11 @@ class MapAlignment(Node):
         aligned = map_ref
         aligned.header.frame_id = "merged_map"
 
-        self.tf_broadcaster.sendTransform(tf)
-        self.map_publishers[self.robot_names[0]].publish(aligned)
+        try:
+            self.tf_broadcaster.sendTransform(tf)
+            self.map_publishers[self.robot_names[0]].publish(aligned)
+        except RCLError:
+            return
 
     def publish_map_transform(self, robot, T):
         tf = TransformStamped()
@@ -188,7 +196,10 @@ class MapAlignment(Node):
         tf.transform.rotation.z = qz
         tf.transform.rotation.w = qw
 
-        self.tf_broadcaster.sendTransform(tf)
+        try:
+            self.tf_broadcaster.sendTransform(tf)
+        except RCLError:
+            return
 
     def relative_pose(self, pose_current, pose_other):
         xc = pose_current.position.x
