@@ -157,7 +157,7 @@ ros2 service call artbot2/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
 echo ""
 echo "Generating Aligned Maps..."
 
-setsid ros2 run final_proj map_alignment.py --ros-args -p use_sim_time:=true &
+setsid ros2 run final_proj map_alignment.py --ros-args -p use_sim_time:=true -p alignment_output_file:=${EXPERIMENTS_DIR}/alignment_data.json &
 
 MAP_ALIGN=$! # stores map alignment process pid
 echo "Map Alignment PID: $MAP_ALIGN"
@@ -201,6 +201,6 @@ echo "Experiment $TIMESTAMP Pipeline Completed"
 
 echo "Trajectory image file saved to: $EXPERIMENTS_DIR/trajectory.png"
 echo "Trajectory csv file saved to: $EXPERIMENTS_DIR/trajectory.csv"
-echo "Relative pose file saved to: $EXPERIMENTS_DIR/relative_poses.json"
+echo "Alignment data file saved to: $EXPERIMENTS_DIR/alignment_data.json"
 echo "---------------------------------------------"
 echo ""

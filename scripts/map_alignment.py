@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import math
+import json
+import os
 
 import rclpy
 from rclpy.node import Node
@@ -66,6 +68,13 @@ class MapAlignment(Node):
     def __init__(self):
         super().__init__("map_alignment")
 
+        self.declare_parameter("alignment_output_file", "")
+        self.alignment_output_file = (
+            self.get_parameter("alignment_output_file")
+            .get_parameter_value()
+            .string_value
+        )
+
         self.robot_names = [
             "artbot1",
             "artbot2"
@@ -121,6 +130,20 @@ class MapAlignment(Node):
             )
             self.get_logger().info(f"Publishing to {aligned_map_topic}")
 
+    def save_alignment_data(self, alignment_data):
+        if not self.alignment_output_file:
+            return
+        try:
+            directory = os.path.dirname(self.alignment_output_file)
+            if directory:
+                os.makedirs(directory, exist_ok=True)
+            with open(self.alignment_output_file, "w") as f:
+                json.dump(alignment_data, f, indent=4)
+        except Exception as e:
+            self.get_logger().error(
+                f"Failed to save alignment data: {e}"
+            )
+
     def gt_callback(self, msg, robot):
         if not msg.poses:
             return
@@ -153,6 +176,7 @@ class MapAlignment(Node):
 
                 try:
                     self.map_publishers[robot].publish(aligned)
+                    self.save_alignment_data(alignment_data)
                 except RCLError:
                     return
 
