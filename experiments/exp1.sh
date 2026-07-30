@@ -186,9 +186,14 @@ echo "Generating CSV..."
 python3 $PKG_DIR/experiments/extract_pose_data.py "$EXPERIMENTS_DIR"
 
 echo ""
-echo "Generating Plot Data..."
+echo "Generating Pose Data Plot ..."
 
 python3 $PKG_DIR/experiments/plot_pose_data.py "$EXPERIMENTS_DIR"
+
+echo ""
+echo "Generating Occupancy Grid Maps Plot ..."
+
+python3 $PKG_DIR/experiments/plot_occup_grid_map.py "$EXPERIMENTS_DIR"
 
 ## Generating global merged map
 echo ""
