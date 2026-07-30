@@ -35,31 +35,17 @@ def plot_map(image, resolution, origin, output_file, title):
 
     plt.figure(figsize=(8, 8))
 
-    plt.imshow(
-        image,
-        cmap="gray",
-        origin="lower",
-        extent=extent,
-    )
-
-    plt.scatter(
-        0,
-        0,
-        color="blue",
-        s=70,
-        label="Início do mapa (0,0)",
-        zorder=5,
-    )
+    plt.imshow(image, cmap="gray", origin="lower", extent=extent,) #mapa
+    plt.scatter(0, 0, color="blue", s=20, label="Origem [0,0]", zorder=5,) #origem
 
     plt.xlabel("X [m]")
     plt.ylabel("Y [m]")
     plt.title(title)
 
     plt.grid(True, alpha=0.3)
-    plt.axis("equal")
+    plt.axis("auto")
     plt.legend()
 
-    plt.tight_layout()
     plt.savefig(output_file, dpi=300)
     plt.close()
 
@@ -89,7 +75,7 @@ def main():
 
         plot_map(
             image=image, resolution=resolution, origin=origin,
-            output_file=output, title=f"Mapa - {robot_name}",
+            output_file=output, title=f"Mapa Local: {robot_name}",
         )
         print(f"Salvo em {output}\n")
 
