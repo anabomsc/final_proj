@@ -74,7 +74,7 @@ def plot_map_with_trajectories(image, resolution, origin, gt, odom, slam, output
     )
     plt.plot( #slam trajectory
         slam["x"], slam["y"], linewidth=0.5, marker="o",
-        markersize=1, markevery=50, label="Ground Truth"
+        markersize=1, markevery=50, label="SLAM"
     )
 
     plt.xlabel("X [m]")
