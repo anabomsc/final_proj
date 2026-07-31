@@ -51,6 +51,41 @@ cleanup() {
 
 trap cleanup EXIT
 
+save_map_retry() {
+    local cmd="$1"
+    local map_base="$2"
+    local description="$3"
+    local max_attempts="${4:-5}"
+    local wait_time="${5:-2}"
+
+    local attempt=1
+
+    while [ $attempt -le $max_attempts ]; do
+        echo "$description (attempt $attempt/$max_attempts)..."
+
+        rm -f "${map_base}.yaml" "${map_base}.pgm"
+
+        if eval "$cmd"; then
+            if [ -f "${map_base}.yaml" ] && [ -f "${map_base}.pgm" ]; then
+                echo "$description saved successfully."
+                return 0
+            fi
+        fi
+
+        echo "$description failed."
+
+        if [ $attempt -lt $max_attempts ]; then
+            echo "Retrying in ${wait_time}s..."
+            sleep "$wait_time"
+        fi
+
+        attempt=$((attempt + 1))
+    done
+
+    echo "ERROR: Could not save $description after $max_attempts attempts."
+    return 1
+}
+
 # Setup paths
 WORKSPACE="$HOME/mono_ws"
 PKG_DIR="$WORKSPACE/src/final_proj"
@@ -148,10 +183,22 @@ sleep 2
 echo ""
 echo "Saving local maps..."
 
-ros2 service call artbot1/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
-    "{name: {data: '${EXPERIMENTS_DIR}/artbot1_map_save'}}"
-ros2 service call artbot2/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
-    "{name: {data: '${EXPERIMENTS_DIR}/artbot2_map_save'}}"
+# ros2 service call artbot1/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
+#     "{name: {data: '${EXPERIMENTS_DIR}/artbot1_map_save'}}"
+# ros2 service call artbot2/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
+#     "{name: {data: '${EXPERIMENTS_DIR}/artbot2_map_save'}}"
+
+save_map_retry \
+"ros2 service call artbot1/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
+\"{name: {data: '${EXPERIMENTS_DIR}/artbot1_map_save'}}\"" \
+"${EXPERIMENTS_DIR}/artbot1_map_save" \
+"Artbot1 Local Map"
+
+save_map_retry \
+"ros2 service call artbot2/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
+\"{name: {data: '${EXPERIMENTS_DIR}/artbot2_map_save'}}\"" \
+"${EXPERIMENTS_DIR}/artbot2_map_save" \
+"Artbot2 Local Map"
 
 ## Generate aligned maps
 echo ""
@@ -199,7 +246,14 @@ python3 $PKG_DIR/experiments/plot_occup_grid_map.py "$EXPERIMENTS_DIR"
 echo ""
 echo "Saving merged map..."
 
-ros2 run nav2_map_server map_saver_cli -f ${EXPERIMENTS_DIR}/merged_map_save -t /merged_map
+# ros2 run nav2_map_server map_saver_cli -f ${EXPERIMENTS_DIR}/merged_map_save -t /merged_map
+
+save_map_retry \
+"ros2 run nav2_map_server map_saver_cli \
+-f ${EXPERIMENTS_DIR}/merged_map_save \
+-t /merged_map" \
+"${EXPERIMENTS_DIR}/merged_map_save" \
+"Merged Map"
 
 echo ""
 echo "Experiment $TIMESTAMP Pipeline Completed"
