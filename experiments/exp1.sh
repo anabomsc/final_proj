@@ -256,6 +256,11 @@ save_map_retry \
 "Merged Map"
 
 echo ""
+echo "Generating Merged Map Plots ..."
+
+python3 $PKG_DIR/experiments/plot_merged_map.py "$EXPERIMENTS_DIR"
+
+echo ""
 echo "Experiment $TIMESTAMP Pipeline Completed"
 
 echo "Trajectory image file saved to: $EXPERIMENTS_DIR/trajectory.png"
