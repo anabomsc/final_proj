@@ -5,7 +5,9 @@ set -e # stops execution in case of errors
 
 LIDAR_NOISE_MEAN=${1:-0.0}
 LIDAR_NOISE_STDDEV=${2:-0.0}
-SESSION_DIR=${3:-"$HOME/mono_ws/results"}
+ALIGN_NOISE_MEAN=${3:-0.0}
+ALIGN_NOISE_STDDEV=${4:-0.0}
+SESSION_DIR=${5:-"$HOME/mono_ws/results"}
 
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 
@@ -94,20 +96,18 @@ PKG_DIR="$WORKSPACE/src/final_proj"
 EXPERIMENTS_DIR="$SESSION_DIR/$TIMESTAMP"
 mkdir -p "$EXPERIMENTS_DIR"
 
-# Logging and session index
-# LOG_FILE="${SESSION_DIR}/exp1.log"
-# exec > >(tee -i "$LOG_FILE") 2>&1
-
 # ROS2 and workspace source
 source /opt/ros/humble/setup.bash
 source $WORKSPACE/install/setup.bash    
 
-## Session information: lidar noise and dir
+## Session information: lidar/alignment noise and dir
 echo ""
 echo "-------------- EXPERIMENT INFO ----------------"
 echo "Timestamp: $TIMESTAMP"
 echo "Lidar noise mean: $LIDAR_NOISE_MEAN"
 echo "Lidar noise std dev: $LIDAR_NOISE_STDDEV"
+echo "Alignment noise mean: $ALIGN_NOISE_MEAN"
+echo "Alignment noise std dev: $ALIGN_NOISE_STDDEV"
 echo "Experiment results directory: $EXPERIMENTS_DIR"
 echo "-----------------------------------------------"
 
@@ -204,7 +204,10 @@ save_map_retry \
 echo ""
 echo "Generating Aligned Maps..."
 
-setsid ros2 run final_proj map_alignment.py --ros-args -p use_sim_time:=true -p alignment_output_file:=${EXPERIMENTS_DIR}/alignment_data.json &
+setsid ros2 run final_proj map_alignment.py \
+    --ros-args -p use_sim_time:=true \
+    -p alignment_output_file:=${EXPERIMENTS_DIR}/alignment_data.json \
+    -p gaussian_noise:=[${ALIGN_NOISE_MEAN},${ALIGN_NOISE_STDDEV}] &
 
 MAP_ALIGN=$! # stores map alignment process pid
 echo "Map Alignment PID: $MAP_ALIGN"

@@ -15,11 +15,11 @@ SESSION_DIR="$RESULTS_ROOT/session_$SESSION_TIMESTAMP"
 mkdir -p "$SESSION_DIR"
 
 # Logging
-LOG_FILE="$SESSION_DIR/lidar_noise_experiments.log"
+LOG_FILE="$SESSION_DIR/noise_experiments.log"
 exec > >(tee -i "$LOG_FILE") 2>&1
 
 # Session index yaml
-INDEX_FILE="$SESSION_DIR/experiment_index.yaml"
+INDEX_FILE="$SESSION_DIR/session_index.yaml"
 cat > "$INDEX_FILE" <<EOF
 session_timestamp: "$SESSION_TIMESTAMP"
 experiments:
@@ -33,36 +33,55 @@ echo "Log file: $LOG_FILE"
 echo "======================================================"
 
 # Noise configurations
-MEANS=(
+LIDAR_MEANS=(
 0.0
 )
 
-STDDEVS=(
+LIDAR_STDDEVS=(
 0.00
 # 0.01
 # 0.02
 # 0.05
 # 0.10
-0.20
+# 0.20
 )
 
-for mean in "${MEANS[@]}"; do
-    for stddev in "${STDDEVS[@]}"; do
+ALIGN_MEANS=(
+0.0
+)
 
-        $PKG_DIR/experiments/exp1.sh "$mean" "$stddev" "$SESSION_DIR"
+ALIGN_STDDEVS=(
+0.00
+0.01
+# 0.02
+0.05
+# 0.10
+# 0.20
+)
 
-        # Diretório do experimento recém-criado
-        EXPERIMENT_DIR=$(ls -1dt "$SESSION_DIR"/*/ | head -n1)
-        EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
+for lidar_mean in "${LIDAR_MEANS[@]}"; do
+    for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
+        for align_mean in "${ALIGN_MEANS[@]}"; do
+            for align_stddev in "${ALIGN_STDDEVS[@]}"; do
 
-        cat >> "$INDEX_FILE" <<EOF
+                $PKG_DIR/experiments/exp1.sh "$lidar_mean" "$lidar_stddev" "$align_mean" "$align_stddev" "$SESSION_DIR"
+
+                # Diretório do experimento recém-criado
+                EXPERIMENT_DIR=$(ls -1dt "$SESSION_DIR"/*/ | head -n1)
+                EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
+
+                cat >> "$INDEX_FILE" <<EOF
   - directory: "$EXPERIMENT_NAME"
-    lidar_noise_mean: $mean
-    lidar_noise_stddev: $stddev
+    lidar_noise_mean: $lidar_mean
+    lidar_noise_stddev: $lidar_stddev
+    align_noise_mean: $align_mean
+    align_noise_stddev: $align_stddev
 EOF
 
-        sleep 10
-
+                sleep 10
+        
+            done
+        done
     done
 done
 
