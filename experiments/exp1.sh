@@ -183,11 +183,6 @@ sleep 2
 echo ""
 echo "Saving local maps..."
 
-# ros2 service call artbot1/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
-#     "{name: {data: '${EXPERIMENTS_DIR}/artbot1_map_save'}}"
-# ros2 service call artbot2/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
-#     "{name: {data: '${EXPERIMENTS_DIR}/artbot2_map_save'}}"
-
 save_map_retry \
 "ros2 service call artbot1/slam_toolbox/save_map slam_toolbox/srv/SaveMap \
 \"{name: {data: '${EXPERIMENTS_DIR}/artbot1_map_save'}}\"" \
@@ -215,6 +210,24 @@ echo "Map Alignment PID: $MAP_ALIGN"
 ## Waits 4s for node to start publishing
 echo "Waiting map_alignment node to finish setting up..."
 sleep 4
+
+## Generating local aligned maps
+echo ""
+echo "Saving local maps after alignment..."
+
+save_map_retry \
+"ros2 run nav2_map_server map_saver_cli \
+-f ${EXPERIMENTS_DIR}/artbot1_map_aligned_save \
+-t /artbot1/map_aligned" \
+"${EXPERIMENTS_DIR}/artbot1_map_aligned_save" \
+"Local Aligned Map artbot1"
+
+save_map_retry \
+"ros2 run nav2_map_server map_saver_cli \
+-f ${EXPERIMENTS_DIR}/artbot2_map_aligned_save \
+-t /artbot2/map_aligned" \
+"${EXPERIMENTS_DIR}/artbot2_map_aligned_save" \
+"Local Aligned Map artbot2"
 
 ## Generate merged map
 echo ""
@@ -245,11 +258,14 @@ echo "Generating Occupancy Grid Maps Plot ..."
 
 python3 $PKG_DIR/experiments/plot_occup_grid_map.py "$EXPERIMENTS_DIR"
 
+echo ""
+echo "Generating Aligned Maps Plot ..."
+
+python3 $PKG_DIR/experiments/plot_aligned_maps.py "$EXPERIMENTS_DIR"
+
 ## Generating global merged map
 echo ""
 echo "Saving merged map..."
-
-# ros2 run nav2_map_server map_saver_cli -f ${EXPERIMENTS_DIR}/merged_map_save -t /merged_map
 
 save_map_retry \
 "ros2 run nav2_map_server map_saver_cli \
