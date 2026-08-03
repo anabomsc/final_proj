@@ -75,6 +75,14 @@ class MapAlignment(Node):
             .string_value
         )
 
+        self.declare_parameter(
+            name="gaussian_noise",
+            value=[0.0, 0.0]
+        )
+        self.gaussian_noise = self.get_parameter(
+            name="gaussian_noise"
+        ).value
+
         self.robot_names = [
             "artbot1",
             "artbot2"
@@ -301,6 +309,10 @@ class MapAlignment(Node):
                 relative["translation"]["y"],
                 relative["rotation"]
             )
+            gaussian_mean = self.gaussian_noise[0]
+            gaussian_stddev = self.gaussian_noise[1]
+            noise = np.random.normal(gaussian_mean, gaussian_stddev, np.shape(Tr))
+            Tr = Tr + noise
             To = transform_matrix(
                 other["translation"]["x"],
                 other["translation"]["y"],
