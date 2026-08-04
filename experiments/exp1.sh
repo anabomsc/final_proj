@@ -160,11 +160,11 @@ sleep 2
 
 ## Starting multi robot trajectory node exp1
 echo ""
-echo "Running experiment..."
+echo "Running robot trajectories..."
 
 ros2 run final_proj multi_robot_exp1.py # script waits for it to finish
 
-echo "Experiment finished."
+echo "Trajectories finished."
 
 ## Stopping rosbag recording
 echo ""
@@ -197,7 +197,7 @@ save_map_retry \
 
 ## Generate aligned maps
 echo ""
-echo "Generating Aligned Maps..."
+echo "Generating aligned maps..."
 
 setsid ros2 run final_proj map_alignment.py \
     --ros-args -p use_sim_time:=true \
@@ -231,7 +231,7 @@ save_map_retry \
 
 ## Generate merged map
 echo ""
-echo "Generating Merged Map..."
+echo "Generating merged map..."
 
 setsid ros2 run final_proj map_fusion.py --ros-args -p use_sim_time:=true &
 
@@ -249,17 +249,17 @@ echo "Generating CSV..."
 python3 $PKG_DIR/experiments/extract_pose_data.py "$EXPERIMENTS_DIR"
 
 echo ""
-echo "Generating Pose Data Plot ..."
+echo "Generating pose data plot..."
 
 python3 $PKG_DIR/experiments/plot_pose_data.py "$EXPERIMENTS_DIR"
 
 echo ""
-echo "Generating Occupancy Grid Maps Plot ..."
+echo "Generating occupancy grid maps plots..."
 
 python3 $PKG_DIR/experiments/plot_occup_grid_map.py "$EXPERIMENTS_DIR"
 
 echo ""
-echo "Generating Aligned Maps Plot ..."
+echo "Generating aligned maps plots..."
 
 python3 $PKG_DIR/experiments/plot_aligned_maps.py "$EXPERIMENTS_DIR"
 
@@ -275,15 +275,15 @@ save_map_retry \
 "Merged Map"
 
 echo ""
-echo "Generating Merged Map Plots ..."
+echo "Generating merged map plots ..."
 
 python3 $PKG_DIR/experiments/plot_merged_map.py "$EXPERIMENTS_DIR"
 
 echo ""
 echo "Experiment $TIMESTAMP Pipeline Completed"
 
-echo "Trajectory image file saved to: $EXPERIMENTS_DIR/trajectory.png"
-echo "Trajectory csv file saved to: $EXPERIMENTS_DIR/trajectory.csv"
+echo "Trajectory csv files saved to: $EXPERIMENTS_DIR/artbotX_{gt,odom,slam}.csv"
 echo "Alignment data file saved to: $EXPERIMENTS_DIR/alignment_data.json"
+echo "Transformation data file saved to: $EXPERIMENTS_DIR/transformation_data.json"
 echo "---------------------------------------------"
 echo ""

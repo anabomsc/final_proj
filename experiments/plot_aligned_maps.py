@@ -71,7 +71,7 @@ def main():
     map_output = RESULTS_DIR / "aligned_maps_plot.png"
     plt.savefig(map_output, dpi=300)
     plt.close()
-    print(f"Merged Map salvo em {map_output}")
+    print(f"Aligned Maps salvo em {map_output}")
 
 if __name__ == "__main__":
     main()
