@@ -249,7 +249,7 @@ echo "Generating CSV..."
 python3 $PKG_DIR/experiments/extract_pose_data.py "$EXPERIMENTS_DIR"
 
 echo ""
-echo "Generating pose data plot..."
+echo "Generating pose data plots..."
 
 python3 $PKG_DIR/experiments/plot_pose_data.py "$EXPERIMENTS_DIR"
 
@@ -275,7 +275,7 @@ save_map_retry \
 "Merged Map"
 
 echo ""
-echo "Generating merged map plots ..."
+echo "Generating merged map plots..."
 
 python3 $PKG_DIR/experiments/plot_merged_map.py "$EXPERIMENTS_DIR"
 
