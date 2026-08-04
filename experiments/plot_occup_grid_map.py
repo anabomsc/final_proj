@@ -1,14 +1,22 @@
 #!/usr/bin/env python3
 
 import sys
-import os
 from pathlib import Path
-
 import yaml
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from PIL import Image
+
+if len(sys.argv) != 2:
+    print(f"Uso: python {sys.argv[0]} <diretorio_dos_mapas>")
+    sys.exit(1)
+
+RESULTS_DIR = Path(sys.argv[1])
+
+if not RESULTS_DIR.exists():
+    print(f"Diretório não encontrado: {RESULTS_DIR}")
+    sys.exit(1)
 
 def load_map(yaml_file):
     with open(yaml_file, "r") as f:
@@ -66,15 +74,15 @@ def plot_map_with_trajectories(image, resolution, origin, gt, odom, slam, output
     plt.imshow(map, cmap="gray", origin="lower", extent=extent,) #mapa
     plt.plot( #ground truth trajectory
         gt["x"], gt["y"], linewidth=0.5, marker="o",
-        markersize=1, markevery=50, label="Ground Truth"
+        markersize=2, markevery=50, label="Ground Truth"
     )
     plt.plot( #odom trajectory
-        odom["x"], odom["y"], linewidth=0.5, marker="o",
-        markersize=1, markevery=50, label="Odometry"
+        odom["x"], odom["y"], linewidth=0.5, marker="x",
+        markersize=2, markevery=50, label="Odometry"
     )
     plt.plot( #slam trajectory
-        slam["x"], slam["y"], linewidth=0.5, marker="o",
-        markersize=1, markevery=50, label="SLAM"
+        slam["x"], slam["y"], linewidth=0.5, marker="s",
+        markersize=2, markevery=50, label="SLAM"
     )
 
     plt.xlabel("X [m]")
@@ -88,16 +96,6 @@ def plot_map_with_trajectories(image, resolution, origin, gt, odom, slam, output
     plt.close()
 
 def main():
-    if len(sys.argv) != 2:
-        print(f"Uso: python {sys.argv[0]} <diretorio_dos_mapas>")
-        sys.exit(1)
-    
-    RESULTS_DIR = Path(sys.argv[1])
-
-    if not RESULTS_DIR.exists():
-        print(f"Diretório não encontrado: {RESULTS_DIR}")
-        sys.exit(1)
-
     yaml_files = sorted(RESULTS_DIR.glob("*_map_save.yaml"))
     gt_traject_files = sorted(RESULTS_DIR.glob("*_gt.csv"))
     odom_traject_files = sorted(RESULTS_DIR.glob("*_odom.csv"))
