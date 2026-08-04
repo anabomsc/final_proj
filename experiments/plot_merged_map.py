@@ -134,15 +134,15 @@ def plot_map_with_trajectories(map_yaml_file, gt_traject_files, odom_traject_fil
 
             plt.plot( #ground truth trajectory
                 gt["x"], gt["y"], linewidth=0.5, marker="o",
-                markersize=1, markevery=50, label=f"{robot_name} ground truth"
+                markersize=2, markevery=50, label=f"{robot_name} ground truth"
             )
             plt.plot( #odom trajectory
-                odom["x"], odom["y"], linewidth=0.5, marker="o",
-                markersize=1, markevery=50, label=f"{robot_name} odometry"
+                odom["x"], odom["y"], linewidth=0.5, marker="x",
+                markersize=2, markevery=50, label=f"{robot_name} odometry"
             )
             plt.plot( #slam trajectory
-                slam["x"], slam["y"], linewidth=0.5, marker="o",
-                markersize=1, markevery=50, label=f"{robot_name} SLAM"
+                slam["x"], slam["y"], linewidth=0.5, marker="s",
+                markersize=2, markevery=50, label=f"{robot_name} SLAM"
             )
 
     plt.xlabel("X [m]")
