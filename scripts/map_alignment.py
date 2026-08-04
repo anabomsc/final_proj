@@ -65,6 +65,11 @@ def matrix_multiplication(A,B):
 
     return result
 
+def input_noise(gaussian_mean, gaussian_stddev, Tr):
+    noise = np.random.normal(gaussian_mean, gaussian_stddev, np.shape(Tr))
+    noise[2] = [0.0, 0.0, 0.0]
+    return noise
+
 class MapAlignment(Node):
     def __init__(self):
         super().__init__("map_alignment")
@@ -312,7 +317,7 @@ class MapAlignment(Node):
             )
             gaussian_mean = self.gaussian_noise[0]
             gaussian_stddev = self.gaussian_noise[1]
-            noise = np.random.normal(gaussian_mean, gaussian_stddev, np.shape(Tr))
+            noise = input_noise(gaussian_mean, gaussian_stddev, Tr)
             Tr = Tr + noise
             To = transform_matrix(
                 other["translation"]["x"],
