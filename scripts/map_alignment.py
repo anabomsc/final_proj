@@ -382,29 +382,28 @@ class MapAlignment(Node):
         aligned.info.origin.orientation.z = qz
         aligned.info.origin.orientation.w = qw
 
+        T_inv = inverse_transform(T)
+        origin_inv = inverse_transform(origin_T)
         aligned.data = [-1]*(grid_robot.info.width*grid_robot.info.height)
-        for y in range(grid_robot.info.height):
-            for x in range(grid_robot.info.width):
-                idx = y*grid_robot.info.width + x
-                value = grid_robot.data[idx]
+        for iy in range(grid_robot.info.height):
+            for ix in range(grid_robot.info.width):
+                cell_x = (ix + 0.5) * grid_robot.info.resolution
+                cell_y = (iy + 0.5) * grid_robot.info.resolution
 
-                cell_x = (x + 0.5) * grid_robot.info.resolution
-                cell_y = (y + 0.5) * grid_robot.info.resolution
+                wx = new_origin[0][0] * cell_x + new_origin[0][1] * cell_y + new_origin[0][2]
+                wy = new_origin[1][0] * cell_x + new_origin[1][1] * cell_y + new_origin[1][2]
 
-                wx = origin_T[0][0] * cell_x + origin_T[0][1] * cell_y + origin_T[0][2]
-                wy = origin_T[1][0] * cell_x + origin_T[1][1] * cell_y + origin_T[1][2]
+                ox = T_inv[0][0]*wx + T_inv[0][1]*wy + T_inv[0][2]
+                oy = T_inv[1][0]*wx + T_inv[1][1]*wy + T_inv[1][2]
 
-                nx = T[0][0]*wx + T[0][1]*wy + T[0][2]
-                ny = T[1][0]*wx + T[1][1]*wy + T[1][2]
-                new_origin_inv = inverse_transform(new_origin)
-                cx = new_origin_inv[0][0] * nx + new_origin_inv[0][1] * ny + new_origin_inv[0][2]
-                cy = new_origin_inv[1][0] * nx + new_origin_inv[1][1] * ny + new_origin_inv[1][2]
+                cx = origin_inv[0][0] * ox + origin_inv[0][1] * oy + origin_inv[0][2]
+                cy = origin_inv[1][0] * ox + origin_inv[1][1] * oy + origin_inv[1][2]
 
-                ix = round(cx / grid_robot.info.resolution - 0.5)
-                iy = round(cy / grid_robot.info.resolution - 0.5)
+                sx = int(cx / grid_robot.info.resolution)
+                sy = int(cy / grid_robot.info.resolution)
 
-                if 0 <= ix < grid_robot.info.width and 0 <= iy < grid_robot.info.height:
-                    aligned.data[iy*grid_robot.info.width+ix] = value
+                if 0 <= sx < grid_robot.info.width and 0 <= sy < grid_robot.info.height:
+                    aligned.data[iy*grid_robot.info.width+ix] = grid_robot.data[sy*grid_robot.info.width+sx]
         
         return aligned
 
