@@ -144,18 +144,39 @@ class MapAlignment(Node):
             )
             self.get_logger().info(f"Publishing to {aligned_map_topic}")
 
-    def save_alignment_data(self, alignment_data):
+    def save_alignment_data(self, alignment_data, transformation_data, noise_data):
         if not self.alignment_output_file:
             return
         try:
             directory = os.path.dirname(self.alignment_output_file)
             if directory:
                 os.makedirs(directory, exist_ok=True)
-            with open(self.alignment_output_file, "w") as f:
-                json.dump(alignment_data, f, indent=4)
+
+            with open(self.alignment_output_file, "w") as f1:
+                json.dump(alignment_data, f1, indent=4)
+
+            serializable_info = {
+                "transformation": {},
+                "noise": {},
+            }
+            for robot, T in transformation_data.items():
+                if hasattr(T, "tolist"):
+                    serializable_info["transformation"][robot] = T.tolist()
+                else:
+                    serializable_info["transformation"][robot] = T
+
+            for robot, noise in noise_data.items():
+                if hasattr(noise, "tolist"):
+                    serializable_info["noise"][robot] = noise.tolist()
+                else:
+                    serializable_info["noise"][robot] = noise
+            
+            transformation_output_file = os.path.join(directory, "transformation_data.json")
+            with open(transformation_output_file, "w") as f2:
+                json.dump(serializable_info, f2, indent=4)
         except Exception as e:
             self.get_logger().error(
-                f"Failed to save alignment data: {e}"
+                f"Failed to save alignment or transformation data: {e}"
             )
 
     def gt_callback(self, msg, robot):
@@ -179,7 +200,7 @@ class MapAlignment(Node):
 
         if (gt_poses_ok and odom_poses_ok and local_maps_ok):
             alignment_data = self.compute_alignment_data()
-            transformations = self.compute_transformations(alignment_data)
+            transformations, noises = self.compute_transformations(alignment_data)
             self.publish_reference_tf(self.local_maps[self.robot_names[0]])
 
             for robot, T in transformations.items():
@@ -190,7 +211,7 @@ class MapAlignment(Node):
 
                 try:
                     self.map_publishers[robot].publish(aligned)
-                    self.save_alignment_data(alignment_data)
+                    self.save_alignment_data(alignment_data, transformations, noises)
                 except RCLError:
                     return
 
@@ -295,6 +316,7 @@ class MapAlignment(Node):
     
     def compute_transformations(self, alignment_data):
         transformations = {}
+        noises = {}
         reference_robot = self.robot_names[0]
 
         for robot in self.robot_names:
@@ -330,8 +352,9 @@ class MapAlignment(Node):
             )
 
             transformations[robot] = T
+            noises[robot] = noise
     
-        return transformations
+        return transformations, noises
 
     def map_alignment(self, grid_robot, T):
         aligned = OccupancyGrid()
@@ -381,7 +404,6 @@ class MapAlignment(Node):
                 iy = round(cy / grid_robot.info.resolution - 0.5)
 
                 if 0 <= ix < grid_robot.info.width and 0 <= iy < grid_robot.info.height:
-
                     aligned.data[iy*grid_robot.info.width+ix] = value
         
         return aligned
