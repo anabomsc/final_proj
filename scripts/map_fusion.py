@@ -60,39 +60,9 @@ class MapFusion(Node):
             except RCLError:
                 return
 
-    def get_transform(self, source_frame):
-        try:
-            tf = self.tf_buffer.lookup_transform(
-                "merged_map",
-                source_frame,
-                rclpy.time.Time()
-            )
-        except Exception as e:
-            self.get_logger().warn(str(e))
-            return None
-
-        t = tf.transform.translation
-        q = tf.transform.rotation
-        _, _, yaw = euler_from_quaternion([q.x, q.y, q.z, q.w])
-        c = math.cos(yaw)
-        s = math.sin(yaw)
-
-        return {
-            "tx": t.x,
-            "ty": t.y,
-            "c": c,
-            "s": s
-        }
-
-    def transform_point(self, x, y, tf):
-        X = tf["c"] * x - tf["s"] * y + tf["tx"]
-        Y = tf["s"] * x + tf["c"] * y + tf["ty"]
-        return X, Y
-
     def map_fusion(self, map1, map2):
         merged_map = OccupancyGrid()
         merged_map.header = map1.header
-        merged_map.header.frame_id = 'merged_map'
         
         min_x = min(map1.info.origin.position.x, map2.info.origin.position.x)
         min_y = min(map1.info.origin.position.y, map2.info.origin.position.y)
