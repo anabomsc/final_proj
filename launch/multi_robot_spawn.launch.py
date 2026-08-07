@@ -33,22 +33,12 @@ def generate_launch_description():
     ld.add_action(declare_use_sim_time)
     ld.add_action(declare_num_robots)
 
-    declare_lidar_noise_mean = DeclareLaunchArgument(
-        'lidar_noise_mean',
-        default_value='0.0',
-        description='Mean of LiDAR gaussian noise'
-    )
-
     declare_lidar_noise_stddev = DeclareLaunchArgument(
         'lidar_noise_stddev',
         default_value='0.0',
         description='Standard deviation of LiDAR gaussian noise'
     )
-
-    lidar_noise_mean = LaunchConfiguration('lidar_noise_mean')
     lidar_noise_stddev = LaunchConfiguration('lidar_noise_stddev')
-
-    ld.add_action(declare_lidar_noise_mean)
     ld.add_action(declare_lidar_noise_stddev)
 
     # Setup project paths
@@ -72,7 +62,6 @@ def generate_launch_description():
             'xacro ', xacro_file,
             ' frame_prefix:=', frame_prefix,
             ' topic_prefix:=', topic_prefix,
-            ' lidar_noise_mean:=', lidar_noise_mean,
             ' lidar_noise_stddev:=', lidar_noise_stddev,
         ])
 

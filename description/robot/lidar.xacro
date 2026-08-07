@@ -3,7 +3,6 @@
 
     <xacro:arg name="frame_prefix" default="artbot_" />
     <xacro:arg name="topic_prefix" default="artbot/" />
-    <xacro:arg name="lidar_noise_mean" default="0.0" />
     <xacro:arg name="lidar_noise_stddev" default="0.0" />
 
     <joint name="$(arg frame_prefix)laser_joint" type="fixed">
@@ -60,7 +59,7 @@
 
                 <noise>
                     <type>gaussian</type>
-                    <mean>$(arg lidar_noise_mean)</mean>
+                    <mean>0.0</mean>
                     <stddev>$(arg lidar_noise_stddev)</stddev>
                 </noise>
             </lidar>

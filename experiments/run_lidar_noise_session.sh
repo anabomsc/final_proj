@@ -33,17 +33,9 @@ echo "Log file: $LOG_FILE"
 echo "======================================================"
 
 # Noise configurations
-LIDAR_MEANS=(
-0.0
-)
-
 LIDAR_STDDEVS=(
 0.00
-# 0.01
-# 0.02
-# 0.05
-# 0.10
-# 0.20
+0.05
 )
 
 DIST_STDDEVS=(
@@ -54,28 +46,25 @@ THETA_STDDEVS=(
 0.00
 )
 
-for lidar_mean in "${LIDAR_MEANS[@]}"; do
-    for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
-        for dist_stddev in "${DIST_STDDEVS[@]}"; do
-            for theta_stddev in "${THETA_STDDEVS[@]}"; do
+for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
+    for dist_stddev in "${DIST_STDDEVS[@]}"; do
+        for theta_stddev in "${THETA_STDDEVS[@]}"; do
 
-                $PKG_DIR/experiments/exp1.sh "$lidar_mean" "$lidar_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_DIR"
+            $PKG_DIR/experiments/exp1.sh "$lidar_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_DIR"
 
-                # Diretório do experimento recém-criado
-                EXPERIMENT_DIR=$(ls -1dt "$SESSION_DIR"/*/ | head -n1)
-                EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
+            # Diretório do experimento recém-criado
+            EXPERIMENT_DIR=$(ls -1dt "$SESSION_DIR"/*/ | head -n1)
+            EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
 
-                cat >> "$INDEX_FILE" <<EOF
+            cat >> "$INDEX_FILE" <<EOF
   - directory: "$EXPERIMENT_NAME"
-    lidar_noise_mean: $lidar_mean
     lidar_noise_stddev: $lidar_stddev
     dist_noise_stddev: $dist_stddev
     theta_noise_stddev: $theta_stddev
 EOF
 
-                sleep 10
-        
-            done
+            sleep 10
+    
         done
     done
 done

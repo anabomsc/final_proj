@@ -3,11 +3,10 @@
 
 set -e # stops execution in case of errors
 
-LIDAR_NOISE_MEAN=${1:-0.0}
-LIDAR_NOISE_STDDEV=${2:-0.0}
-DIST_NOISE_STDDEV=${3:-0.0}
-THETA_NOISE_STDDEV=${4:-0.0}
-SESSION_DIR=${5:-"$HOME/mono_ws/results"}
+LIDAR_NOISE_STDDEV=${1:-0.0}
+DIST_NOISE_STDDEV=${2:-0.0}
+THETA_NOISE_STDDEV=${3:-0.0}
+SESSION_DIR=${4:-"$HOME/mono_ws/results"}
 
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 
@@ -104,7 +103,6 @@ source $WORKSPACE/install/setup.bash
 echo ""
 echo "-------------- EXPERIMENT INFO ----------------"
 echo "Timestamp: $TIMESTAMP"
-echo "Lidar noise mean: $LIDAR_NOISE_MEAN"
 echo "Lidar noise std dev: $LIDAR_NOISE_STDDEV"
 echo "Alignment distance noise std dev: $DIST_NOISE_STDDEV"
 echo "Alignment theta noise std dev: $THETA_NOISE_STDDEV"
@@ -116,7 +114,6 @@ echo ""
 echo "Starting multi robot simulation $TIMESTAMP..."
 
 setsid ros2 launch final_proj sim_multi_robot.launch.py \
-    lidar_noise_mean:=${LIDAR_NOISE_MEAN} \
     lidar_noise_stddev:=${LIDAR_NOISE_STDDEV} & # simulation runs in background
 
 SIM_PID=$! # stores background simulation process pid
