@@ -60,7 +60,7 @@ def plot_map(image, resolution, origin, output_file, title):
     plt.title(title)
 
     plt.grid(True, alpha=0.3)
-    plt.axis("auto")
+    plt.axis("equal")
     plt.legend()
 
     plt.savefig(output_file, dpi=300)
@@ -89,7 +89,7 @@ def plot_map_with_trajectories(image, resolution, origin, gt, odom, slam, output
     plt.ylabel("Y [m]")
     plt.title(title)
     plt.grid(True, alpha=0.3)
-    plt.axis("auto")
+    plt.axis("equal")
     plt.legend()
 
     plt.savefig(output_file, dpi=300)

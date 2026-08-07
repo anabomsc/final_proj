@@ -149,7 +149,7 @@ def plot_map_with_trajectories(map_yaml_file, gt_traject_files, odom_traject_fil
     plt.ylabel("Y [m]")
     plt.title("Merged Map com Trajetórias")
     plt.grid(True, alpha=0.3)
-    plt.axis("auto")
+    plt.axis("equal")
     plt.legend()
 
     map_with_traj_output = RESULTS_DIR / f"merged_map_plot_with_traject.png"
@@ -170,7 +170,7 @@ def plot_map(map_yaml_file, output_file, title):
     plt.ylabel("Y [m]")
     plt.title(title)
     plt.grid(True, alpha=0.3)
-    plt.axis("auto")
+    plt.axis("equal")
     plt.legend()
 
     plt.savefig(output_file, dpi=300)

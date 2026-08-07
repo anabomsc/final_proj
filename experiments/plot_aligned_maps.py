@@ -66,7 +66,7 @@ def main():
     plt.ylabel("Y [m]")
     plt.title("Mapas Locais Alinhados")
     plt.grid(True, alpha=0.3)
-    plt.axis("auto")
+    plt.axis("equal")
 
     map_output = RESULTS_DIR / "aligned_maps_plot.png"
     plt.savefig(map_output, dpi=300)
