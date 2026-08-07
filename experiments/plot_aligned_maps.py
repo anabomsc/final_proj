@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import os
 from pathlib import Path
 import yaml
 import numpy as np
@@ -56,7 +57,7 @@ def main():
 
     plt.figure(figsize=(8, 8))
     for yaml_file in yaml_files:
-        robot_name = yaml_file.stem.replace("_map_save", "")
+        robot_name = yaml_file.stem.replace("_map_aligned_save", "")
         print(f"Processando {robot_name}...")
 
         plot_map(yaml_file, transparency)
@@ -72,6 +73,22 @@ def main():
     plt.savefig(map_output, dpi=300)
     plt.close()
     print(f"Aligned Maps salvo em {map_output}")
+
+    for yaml_file in yaml_files:
+        robot_name = yaml_file.stem.replace("_map_aligned_save", "")
+        output_png = os.path.join(RESULTS_DIR, f"{robot_name}_map_aligned.png")
+        plt.figure(figsize=(8, 8))
+        plot_map(yaml_file, transparency=1.0)
+        plt.scatter(0, 0, color="blue", s=10, label="Origem [0,0]", zorder=5,) #origem
+        plt.xlabel("X [m]")
+        plt.ylabel("Y [m]")
+        plt.title(f"Map Aligned {robot_name}")
+        plt.grid(True, alpha=0.3)
+        plt.axis("equal")
+        plt.legend()
+        plt.savefig(output_png, dpi=300)
+        plt.close()
+        print(f"Map Aligned {robot_name} salvo em {output_png}")
 
 if __name__ == "__main__":
     main()
