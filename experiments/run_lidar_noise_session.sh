@@ -46,25 +46,20 @@ LIDAR_STDDEVS=(
 # 0.20
 )
 
-ALIGN_MEANS=(
-0.0
+DIST_STDDEVS=(
+0.00
 )
 
-ALIGN_STDDEVS=(
+THETA_STDDEVS=(
 0.00
-0.01
-# 0.02
-0.05
-# 0.10
-# 0.20
 )
 
 for lidar_mean in "${LIDAR_MEANS[@]}"; do
     for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
-        for align_mean in "${ALIGN_MEANS[@]}"; do
-            for align_stddev in "${ALIGN_STDDEVS[@]}"; do
+        for dist_stddev in "${DIST_STDDEVS[@]}"; do
+            for theta_stddev in "${THETA_STDDEVS[@]}"; do
 
-                $PKG_DIR/experiments/exp1.sh "$lidar_mean" "$lidar_stddev" "$align_mean" "$align_stddev" "$SESSION_DIR"
+                $PKG_DIR/experiments/exp1.sh "$lidar_mean" "$lidar_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_DIR"
 
                 # Diretório do experimento recém-criado
                 EXPERIMENT_DIR=$(ls -1dt "$SESSION_DIR"/*/ | head -n1)
@@ -74,8 +69,8 @@ for lidar_mean in "${LIDAR_MEANS[@]}"; do
   - directory: "$EXPERIMENT_NAME"
     lidar_noise_mean: $lidar_mean
     lidar_noise_stddev: $lidar_stddev
-    align_noise_mean: $align_mean
-    align_noise_stddev: $align_stddev
+    dist_noise_stddev: $dist_stddev
+    theta_noise_stddev: $theta_stddev
 EOF
 
                 sleep 10

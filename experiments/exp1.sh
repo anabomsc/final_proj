@@ -5,8 +5,8 @@ set -e # stops execution in case of errors
 
 LIDAR_NOISE_MEAN=${1:-0.0}
 LIDAR_NOISE_STDDEV=${2:-0.0}
-ALIGN_NOISE_MEAN=${3:-0.0}
-ALIGN_NOISE_STDDEV=${4:-0.0}
+DIST_NOISE_STDDEV=${3:-0.0}
+THETA_NOISE_STDDEV=${4:-0.0}
 SESSION_DIR=${5:-"$HOME/mono_ws/results"}
 
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
@@ -106,8 +106,8 @@ echo "-------------- EXPERIMENT INFO ----------------"
 echo "Timestamp: $TIMESTAMP"
 echo "Lidar noise mean: $LIDAR_NOISE_MEAN"
 echo "Lidar noise std dev: $LIDAR_NOISE_STDDEV"
-echo "Alignment noise mean: $ALIGN_NOISE_MEAN"
-echo "Alignment noise std dev: $ALIGN_NOISE_STDDEV"
+echo "Alignment distance noise std dev: $DIST_NOISE_STDDEV"
+echo "Alignment theta noise std dev: $THETA_NOISE_STDDEV"
 echo "Experiment results directory: $EXPERIMENTS_DIR"
 echo "-----------------------------------------------"
 
@@ -202,7 +202,7 @@ echo "Generating aligned maps..."
 setsid ros2 run final_proj map_alignment.py \
     --ros-args -p use_sim_time:=true \
     -p alignment_output_file:=${EXPERIMENTS_DIR}/alignment_data.json \
-    -p gaussian_noise:=[${ALIGN_NOISE_MEAN},${ALIGN_NOISE_STDDEV}] &
+    -p gaussian_noise:=[${DIST_NOISE_STDDEV},${THETA_NOISE_STDDEV}] &
 
 MAP_ALIGN=$! # stores map alignment process pid
 echo "Map Alignment PID: $MAP_ALIGN"
