@@ -175,7 +175,7 @@ def plot_map(map_yaml_file, output_file, title):
 
     plt.savefig(output_file, dpi=300)
     plt.close()
-    print(f"Merged Map salvo em {output_file}")
+    print(f"{title} salvo em {output_file}")
 
 def main():
     yaml_file = RESULTS_DIR / "merged_map_save.yaml"
