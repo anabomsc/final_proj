@@ -11,6 +11,7 @@ from rclpy.executors import ExternalShutdownException
 
 from geometry_msgs.msg import PoseArray, TransformStamped
 from nav_msgs.msg import Odometry, OccupancyGrid
+
 from tf2_ros import TransformBroadcaster
 from tf_transformations import euler_from_quaternion, quaternion_from_euler
 
@@ -35,7 +36,7 @@ def matrix2pose(T):
     theta = math.atan2(T[1][0], T[0][0])
     return tx, ty, theta
 
-def transform_matrix(tx, ty, teta):
+def pose2matrix(tx, ty, teta):
     c = math.cos(teta)
     s = math.sin(teta)
     return [
@@ -57,21 +58,53 @@ def inverse_transform(T):
     ]
 
 def matrix_multiplication(A,B):
-    result = [[0.0]*3 for _ in range(3)]
-    for i in range(3):
-        for j in range(3):
-            for k in range(3):
+    la, ca = len(A), len(A[0])
+    lb, cb = len(B), len(B[0])
+    if ca != lb:
+        raise ValueError("Invalid matrix multiplication")
+    result = [[0.0 for _ in range(cb)] for _ in range(la)]
+    for i in range(la):
+        for j in range(cb):
+            for k in range(ca):
                 result[i][j] += A[i][k]*B[k][j]
-
     return result
+
+def corners_coord(map_info):
+    origin_T = pose2matrix(map_info.origin.position.x, map_info.origin.position.y, get_yaw(map_info.origin))
+    corner1 = matrix_multiplication(origin_T, [[0], [0], [1]])
+    corner2 = matrix_multiplication(origin_T, [[map_info.width*map_info.resolution], [0], [1]])
+    corner3 = matrix_multiplication(origin_T, [[0], [map_info.height*map_info.resolution], [1]])
+    corner4 = matrix_multiplication(origin_T, [[map_info.width*map_info.resolution], [map_info.height*map_info.resolution], [1]])
+    
+    return [corner1, corner2, corner3, corner4]
+
+def compute_merged_corners(map1_info, map2_info):
+    # all_corners = corners_coord(map1_info) + corners_coord(map2_info)
+    # xs = [corner[0][0] for corner in all_corners]
+    # ys = [corner[1][0] for corner in all_corners]
+
+    # xmin = min(xs)
+    # xmax = max(xs)
+    # ymin = min(ys)
+    # ymax = max(ys)
+
+    map1_corners = corners_coord(map1_info)
+    map2_corners = corners_coord(map2_info)
+
+    xmin = min(map1_corners[0][0], map1_corners[2][0], map2_corners[0][0], map2_corners[2][0])
+    ymin = min(map1_corners[0][1], map1_corners[1][1], map2_corners[0][1], map2_corners[1][1])
+    xmax = max(map1_corners[1][0], map1_corners[3][0], map2_corners[1][0], map2_corners[3][0])
+    ymax = max(map1_corners[2][1], map1_corners[3][1], map2_corners[2][1], map2_corners[3][1])
+
+    return (xmin[0], xmax[0], ymin[0], ymax[0])
 
 def input_noise(gaussian_stddev):
     noise = np.random.normal(0.0, gaussian_stddev)
     return noise
 
-class MapAlignment(Node):
+class MapMerging(Node):
     def __init__(self):
-        super().__init__("map_alignment")
+        super().__init__("map_merge")
 
         self.declare_parameter("alignment_output_file", "")
         self.alignment_output_file = (
@@ -93,19 +126,25 @@ class MapAlignment(Node):
             "artbot2"
         ]
 
+        self.timer = self.create_timer(5.0, self.publish_transforms)
+
         map_qos = QoSProfile(
             history=HistoryPolicy.KEEP_LAST, depth=1,
             reliability=ReliabilityPolicy.RELIABLE,
             durability=DurabilityPolicy.TRANSIENT_LOCAL,
         )
 
-        # Entradas
-        self.gt_poses = {}
-        self.odom_poses = {}
-        self.local_maps = {}
-        self.map_publishers = {}
-        self.tf_broadcaster = TransformBroadcaster(self)
+        # Internal variables
+        self.gt_poses = {} # raw ground truth poses (gazebo world frame of reference) - map alignment
+        self.odom_poses = {} # odom poses (local odom frame of reference) - map alignment
+        self.local_maps = {} # local individual maps (local map frame of reference) - map alignment
+        self.local_aligned_maps = {} # local individual maps after alignment (global merged map frame of reference) - map fusion
 
+        self.aligned_map_publishers = {} # aligned maps publishers
+        self.tf_broadcaster = TransformBroadcaster(self) # tf brodcaster for new tfs and frames
+        self.tf_local2merged = {} # stamped transform from local map frames to global merged map frame 
+
+        # Subscriptions and Publishers
         for robot in self.robot_names:
             gt_topic = f"/{robot}/gt_pose_raw"
             odom_topic = f"/{robot}/odom"
@@ -136,12 +175,28 @@ class MapAlignment(Node):
             )
             self.get_logger().info(f"Subscribed to {local_map_topic}")
 
-            self.map_publishers[robot] = self.create_publisher(
+            self.aligned_map_publishers[robot] = self.create_publisher(
                 OccupancyGrid,
                 aligned_map_topic,
                 map_qos,
             )
             self.get_logger().info(f"Publishing to {aligned_map_topic}")
+
+        merged_map_topic = "/merged_map"
+        self.merged_map_publisher = self.create_publisher(OccupancyGrid, merged_map_topic, map_qos)
+        self.get_logger().info(f"Publishing to {merged_map_topic}")
+
+    def gt_callback(self, msg, robot):
+        if not msg.poses:
+            return
+        self.gt_poses[robot] = msg.poses[0]
+
+    def odom_callback(self, msg, robot):
+        self.odom_poses[robot] = msg.pose.pose
+
+    def map_callback(self, msg, robot):
+        self.local_maps[robot] = msg
+        # self.publish_transforms()
 
     def save_alignment_data(self, alignment_data, transformation_data, noise_data):
         if not self.alignment_output_file:
@@ -178,38 +233,37 @@ class MapAlignment(Node):
                 f"Failed to save alignment or transformation data: {e}"
             )
 
-    def gt_callback(self, msg, robot):
-        if not msg.poses:
-            return
-        self.gt_poses[robot] = msg.poses[0]
-        self.publish_transforms()
-
-    def odom_callback(self, msg, robot):
-        self.odom_poses[robot] = msg.pose.pose
-        self.publish_transforms()
-
-    def map_callback(self, msg, robot):
-        self.local_maps[robot] = msg
-        self.publish_transforms()
-
     def publish_transforms(self):
         gt_poses_ok = len(self.gt_poses) == len(self.robot_names)
         odom_poses_ok = len(self.odom_poses) == len(self.robot_names)
         local_maps_ok = len(self.local_maps) == len(self.robot_names)
+        reference_robot = self.robot_names[0]
 
         if (gt_poses_ok and odom_poses_ok and local_maps_ok):
             alignment_data = self.compute_alignment_data()
             transformations, noises = self.compute_transformations(alignment_data)
-            self.publish_reference_tf(self.local_maps[self.robot_names[0]])
-
+            self.local_aligned_maps[reference_robot], self.tf_local2merged[reference_robot] = self.publish_reference_tf(self.local_maps[reference_robot])
+            
             for robot, T in transformations.items():
-                self.publish_map_transform(robot, T)
-                aligned = self.map_alignment(
+                self.tf_local2merged[robot] = self.publish_map_transform(robot, T)
+                self.local_aligned_maps[robot] = self.map_alignment(
                     self.local_maps[robot], T
                 )
 
+            if len(self.local_aligned_maps) == len(self.robot_names):
+                merged_map = self.local_aligned_maps[reference_robot]
+                for robot in self.robot_names[1:]:
+                    merged_map = self.map_fusion(merged_map, self.local_aligned_maps[robot])
+
                 try:
-                    self.map_publishers[robot].publish(aligned)
+                    for robot in self.robot_names:
+                        if robot == reference_robot:
+                            self.tf_broadcaster.sendTransform(self.tf_local2merged[robot])
+                            self.aligned_map_publishers[robot].publish(self.local_aligned_maps[robot])
+                        else:
+                            self.tf_broadcaster.sendTransform(self.tf_local2merged[robot])
+                            self.aligned_map_publishers[robot].publish(self.local_aligned_maps[robot])
+                    self.merged_map_publisher.publish(merged_map)
                     self.save_alignment_data(alignment_data, transformations, noises)
                 except RCLError:
                     return
@@ -230,11 +284,7 @@ class MapAlignment(Node):
         aligned = map_ref
         aligned.header.frame_id = "merged_map"
 
-        try:
-            self.tf_broadcaster.sendTransform(tf)
-            self.map_publishers[self.robot_names[0]].publish(aligned)
-        except RCLError:
-            return
+        return aligned, tf
 
     def publish_map_transform(self, robot, T):
         tf = TransformStamped()
@@ -254,10 +304,7 @@ class MapAlignment(Node):
         tf.transform.rotation.z = qz
         tf.transform.rotation.w = qw
 
-        try:
-            self.tf_broadcaster.sendTransform(tf)
-        except RCLError:
-            return
+        return tf
 
     def relative_pose(self, pose_current, pose_other):
         xc = pose_current.position.x
@@ -326,30 +373,33 @@ class MapAlignment(Node):
             relative = alignment_data[reference_robot][robot]
             other = alignment_data[robot][robot]
 
-            Tc = transform_matrix(
+            Tc = pose2matrix(
                 current["translation"]["x"],
                 current["translation"]["y"],
                 current["rotation"]
             )
-            To = transform_matrix(
+            To = pose2matrix(
                 other["translation"]["x"],
                 other["translation"]["y"],
                 other["rotation"]
             )
 
-            Tr = transform_matrix(
+            Tr = pose2matrix(
                 relative["translation"]["x"],
                 relative["translation"]["y"],
                 relative["rotation"]
             )
             distance_stddev = self.gaussian_noise[0]
             theta_stddev = self.gaussian_noise[1]
-            Tr_noise = transform_matrix(
-                relative["translation"]["x"] + input_noise(distance_stddev),
-                relative["translation"]["y"] + input_noise(distance_stddev),
-                relative["rotation"] + input_noise(theta_stddev),
+            tx_noise = input_noise(distance_stddev)
+            ty_noise = input_noise(distance_stddev)
+            theta_noise = input_noise(theta_stddev)
+            Tr_noise = pose2matrix(
+                relative["translation"]["x"] + tx_noise,
+                relative["translation"]["y"] + ty_noise,
+                relative["rotation"] + theta_noise,
             )
-            noise = np.subtract(Tr, Tr_noise)
+            noise = [tx_noise, ty_noise, theta_noise]
 
             T = matrix_multiplication(
                 matrix_multiplication(Tc, Tr_noise),
@@ -362,24 +412,25 @@ class MapAlignment(Node):
         return transformations, noises
 
     def map_alignment(self, grid_robot, T):
+        # Setup map info
         aligned = OccupancyGrid()
-
         aligned.header.stamp = grid_robot.header.stamp
-        aligned.header.frame_id = "merged_map"
-
+        aligned.header.frame_id = "merged_map" # global frame
         aligned.info.map_load_time = grid_robot.info.map_load_time
         aligned.info.resolution = grid_robot.info.resolution
         aligned.info.width = grid_robot.info.width
         aligned.info.height = grid_robot.info.height
-        
-        origin = grid_robot.info.origin
-        origin_T = transform_matrix(
-            origin.position.x, origin.position.y, get_yaw(origin)
-        )
-        new_origin = matrix_multiplication(T, origin_T)
-        tx, ty, yaw = matrix2pose(new_origin)
-        qx, qy, qz, qw = yaw_to_quaternion(yaw)
 
+        # Setup important transformations
+        origin = grid_robot.info.origin
+        origin_T = pose2matrix(
+            origin.position.x, origin.position.y, get_yaw(origin)
+        ) # artbotX_map -> cell inf esq
+        new_origin_T = matrix_multiplication(T, origin_T) # merged_map -> cell inf esq
+
+        # Set new origin from transformation
+        tx, ty, yaw = matrix2pose(new_origin_T)
+        qx, qy, qz, qw = yaw_to_quaternion(yaw)
         aligned.info.origin.position.x = tx
         aligned.info.origin.position.y = ty
         aligned.info.origin.orientation.x = qx
@@ -387,36 +438,83 @@ class MapAlignment(Node):
         aligned.info.origin.orientation.z = qz
         aligned.info.origin.orientation.w = qw
 
-        T_inv = inverse_transform(T)
-        origin_inv = inverse_transform(origin_T)
-        aligned.data = [-1]*(grid_robot.info.width*grid_robot.info.height)
-        for iy in range(grid_robot.info.height):
-            for ix in range(grid_robot.info.width):
-                cell_x = (ix + 0.5) * grid_robot.info.resolution
-                cell_y = (iy + 0.5) * grid_robot.info.resolution
-
-                wx = new_origin[0][0] * cell_x + new_origin[0][1] * cell_y + new_origin[0][2]
-                wy = new_origin[1][0] * cell_x + new_origin[1][1] * cell_y + new_origin[1][2]
-
-                ox = T_inv[0][0]*wx + T_inv[0][1]*wy + T_inv[0][2]
-                oy = T_inv[1][0]*wx + T_inv[1][1]*wy + T_inv[1][2]
-
-                cx = origin_inv[0][0] * ox + origin_inv[0][1] * oy + origin_inv[0][2]
-                cy = origin_inv[1][0] * ox + origin_inv[1][1] * oy + origin_inv[1][2]
-
-                sx = int(cx / grid_robot.info.resolution)
-                sy = int(cy / grid_robot.info.resolution)
-
-                if 0 <= sx < grid_robot.info.width and 0 <= sy < grid_robot.info.height:
-                    aligned.data[iy*grid_robot.info.width+ix] = grid_robot.data[sy*grid_robot.info.width+sx]
+        # Copy map data
+        aligned.data = grid_robot.data
         
         return aligned
+
+    def map_fusion(self, map1, map2):
+        # Setup map info
+        merged_map = OccupancyGrid()
+        merged_map.header = map1.header
+        merged_map.info.resolution = min(map1.info.resolution, map2.info.resolution)
+
+        # Determine an origin for the merged map from the 2 local maps
+        min_x, max_x, min_y, max_y = compute_merged_corners(map1.info, map2.info)
+        qx, qy, qz, qw = yaw_to_quaternion(yaw=0.0)
+        merged_map.info.origin.position.x = min_x
+        merged_map.info.origin.position.y = min_y
+        merged_map.info.origin.orientation.x = qx
+        merged_map.info.origin.orientation.y = qy
+        merged_map.info.origin.orientation.z = qz
+        merged_map.info.origin.orientation.w = qw
+
+        # Determine new width and height with the new origin
+        merged_map.info.width = int(np.ceil((max_x - min_x) / merged_map.info.resolution))
+        merged_map.info.height = int(np.ceil((max_y - min_y) / merged_map.info.resolution))
+
+        # Setup important transformations
+        map1_origin_T = pose2matrix(map1.info.origin.position.x, map1.info.origin.position.y, get_yaw(map1.info.origin))
+        map2_origin_T = pose2matrix(map2.info.origin.position.x, map2.info.origin.position.y, get_yaw(map2.info.origin))
+        global_origin_T = pose2matrix(merged_map.info.origin.position.x, merged_map.info.origin.position.y, get_yaw(merged_map.info.origin))
+        global_origin_Tinv = inverse_transform(global_origin_T)
+
+        # Initialize merged map data vector all with unknown cells
+        merged_map.data = [-1] * (merged_map.info.width * merged_map.info.height)
+
+        # Copy map1 to merged map
+        for y in range(map1.info.height):
+            for x in range(map1.info.width):
+                i = x + y * map1.info.width
+                cell_x = (x + 0.5)*map1.info.resolution
+                cell_y = (y + 0.5)*map1.info.resolution
+                wx = cell_x*map1_origin_T[0][0] + cell_y*map1_origin_T[0][1] + map1_origin_T[0][2]
+                wy = cell_x*map1_origin_T[1][0] + cell_y*map1_origin_T[1][1] + map1_origin_T[1][2]
+                merged_cell_x = global_origin_Tinv[0][0] * wx + global_origin_Tinv[0][1] * wy + global_origin_Tinv[0][2]
+                merged_cell_y = global_origin_Tinv[1][0] * wx + global_origin_Tinv[1][1] * wy + global_origin_Tinv[1][2]
+                merged_x = int(merged_cell_x/merged_map.info.resolution)
+                merged_y = int(merged_cell_y/merged_map.info.resolution)
+                merged_i = merged_x + merged_y * merged_map.info.width
+
+                is_within_bounds = (0<=merged_x<merged_map.info.width) and (0<=merged_y<merged_map.info.height)
+                if is_within_bounds: 
+                    merged_map.data[merged_i] = map1.data[i]
+
+        # Copy map2 to merged map
+        for y in range(map2.info.height):
+            for x in range(map2.info.width):
+                i = x + y * map2.info.width
+                cell_x = (x + 0.5)*map2.info.resolution
+                cell_y = (y + 0.5)*map2.info.resolution
+                wx = cell_x*map2_origin_T[0][0] + cell_y*map2_origin_T[0][1] + map2_origin_T[0][2]
+                wy = cell_x*map2_origin_T[1][0] + cell_y*map2_origin_T[1][1] + map2_origin_T[1][2]
+                merged_cell_x = global_origin_Tinv[0][0] * wx + global_origin_Tinv[0][1] * wy + global_origin_Tinv[0][2]
+                merged_cell_y = global_origin_Tinv[1][0] * wx + global_origin_Tinv[1][1] * wy + global_origin_Tinv[1][2]
+                merged_x = int(merged_cell_x/merged_map.info.resolution)
+                merged_y = int(merged_cell_y/merged_map.info.resolution)
+                merged_i = merged_x + merged_y * merged_map.info.width
+
+                is_within_bounds = (0<=merged_x<merged_map.info.width) and (0<=merged_y<merged_map.info.height)
+                if is_within_bounds and (merged_map.data[merged_i] == -1): 
+                    merged_map.data[merged_i] = map2.data[i]
+                
+        return merged_map
 
 def main(args=None):
 
     rclpy.init(args=args)
 
-    node = MapAlignment()
+    node = MapMerging()
 
     try:
         rclpy.spin(node)

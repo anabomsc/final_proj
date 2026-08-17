@@ -41,8 +41,7 @@ cleanup() {
     echo "Experiment Cleanup"
     echo ""
 
-    stop_process_group "$MAP_FUSE" "Map Fusion"
-    stop_process_group "$MAP_ALIGN" "Map Alignment"
+    stop_process_group "$MAP_MERGE" "Map Merging"
     stop_process_group "$POSE_TRANSL_PID" "Pose Plugin Translation"
     stop_process_group "$SIM_PID" "Simulation"
 
@@ -192,21 +191,21 @@ save_map_retry \
 "${EXPERIMENTS_DIR}/artbot2_map_save" \
 "Artbot2 Local Map"
 
-## Generate aligned maps
+## Generate aligned maps and merged map
 echo ""
-echo "Generating aligned maps..."
+echo "Generating aligned and merged maps..."
 
-setsid ros2 run final_proj map_alignment.py \
+setsid ros2 run final_proj map_merging.py \
     --ros-args -p use_sim_time:=true \
     -p alignment_output_file:=${EXPERIMENTS_DIR}/alignment_data.json \
     -p gaussian_noise:=[${DIST_NOISE_STDDEV},${THETA_NOISE_STDDEV}] &
 
-MAP_ALIGN=$! # stores map alignment process pid
-echo "Map Alignment PID: $MAP_ALIGN"
+MAP_MERGE=$! # stores map alignment process pid
+echo "Map Merging PID: $MAP_MERGE"
 
-## Waits 4s for node to start publishing
-echo "Waiting map_alignment node to finish setting up..."
-sleep 4
+## Waits for node to start publishing
+echo "Waiting map_merge node to finish setting up..."
+sleep 8
 
 ## Generating local aligned maps
 echo ""
@@ -226,18 +225,16 @@ save_map_retry \
 "${EXPERIMENTS_DIR}/artbot2_map_aligned_save" \
 "Local Aligned Map artbot2"
 
-## Generate merged map
+## Generating global merged map
 echo ""
-echo "Generating merged map..."
+echo "Saving merged map..."
 
-setsid ros2 run final_proj map_fusion.py --ros-args -p use_sim_time:=true &
-
-MAP_FUSE=$! # stores map alignment process pid
-echo "Map Fusion PID: $MAP_FUSE"
-
-## Waits 4s for node to start publishing
-echo "Waiting map_fusion node to finish setting up..."
-sleep 4
+save_map_retry \
+"ros2 run nav2_map_server map_saver_cli \
+-f ${EXPERIMENTS_DIR}/merged_map_save \
+-t /merged_map" \
+"${EXPERIMENTS_DIR}/merged_map_save" \
+"Merged Map"
 
 ## Generating CSV and plots
 echo ""
@@ -259,17 +256,6 @@ echo ""
 echo "Generating aligned maps plots..."
 
 python3 $PKG_DIR/experiments/plot_aligned_maps.py "$EXPERIMENTS_DIR"
-
-## Generating global merged map
-echo ""
-echo "Saving merged map..."
-
-save_map_retry \
-"ros2 run nav2_map_server map_saver_cli \
--f ${EXPERIMENTS_DIR}/merged_map_save \
--t /merged_map" \
-"${EXPERIMENTS_DIR}/merged_map_save" \
-"Merged Map"
 
 echo ""
 echo "Generating merged map plots..."

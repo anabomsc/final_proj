@@ -5,7 +5,9 @@ import os
 from pathlib import Path
 import yaml
 import numpy as np
+import math
 import matplotlib.pyplot as plt
+from matplotlib.transforms import Affine2D
 from PIL import Image
 
 if len(sys.argv) != 2:
@@ -29,22 +31,47 @@ def load_map(yaml_file):
 
     return image, resolution, origin
 
-def compute_extent(image, resolution, origin):
+def pose2matrix(tx,ty,theta):
+    c = math.cos(theta)
+    s = math.sin(theta)
+    return [
+        [c, -s, tx],
+        [s, c, ty],
+        [0, 0, 1],
+    ]
+
+def inverse_transform(T):
+    c = T[0][0]
+    s = T[1][0]
+    tx = T[0][2]
+    ty = T[1][2]
+
+    return [
+        [c, s, -(c*tx+s*ty)],
+        [-s, c, -(-s*tx+c*ty)],
+        [0, 0, 1],
+    ]
+
+def compute_coords(image, origin, resolution):
     height, width = image.shape
+    theta = origin[2]
+    origin_T = pose2matrix(origin[0], origin[1], theta)
 
-    xmin = origin[0]
-    xmax = origin[0] + width * resolution
-    ymin = origin[1]
-    ymax = origin[1] + height * resolution
+    x_data_idx = np.arange(width)
+    y_data_idx = np.arange(height)[::-1]
+    x_data, y_data = np.meshgrid(x_data_idx, y_data_idx)
+    tx_map = x_data*resolution
+    ty_map = y_data*resolution
 
-    return [xmin, xmax, ymin, ymax]
+    x_coords = tx_map*origin_T[0][0] + ty_map*origin_T[0][1] + origin_T[0][2]
+    y_coords = tx_map*origin_T[1][0] + ty_map*origin_T[1][1] + origin_T[1][2]
+
+    return x_coords, y_coords
 
 def plot_map(map_yaml_file, transparency):
     image, resolution, origin = load_map(map_yaml_file)
-    extent = compute_extent(image, resolution, origin)
-    image = np.flipud(image)
-
-    plt.imshow(image, cmap="gray", origin="lower", extent=extent, alpha=transparency) #mapa
+    x_coords, y_coords = compute_coords(image, origin, resolution)
+    plt.pcolormesh(x_coords, y_coords, image, cmap='gray', shading='auto', alpha=transparency)
 
 def main():
     yaml_files = sorted(RESULTS_DIR.glob("*_map_aligned_save.yaml"))

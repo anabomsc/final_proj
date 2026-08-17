@@ -80,12 +80,15 @@ def inverse_transform(T):
     ]
 
 def matrix_multiplication(A,B):
-    result = [[0.0]*3 for _ in range(3)]
-    for i in range(3):
-        for j in range(3):
-            for k in range(3):
+    la, ca = len(A), len(A[0])
+    lb, cb = len(B), len(B[0])
+    if ca != lb:
+        raise ValueError("Invalid matrix multiplication")
+    result = [[0.0 for _ in range(cb)] for _ in range(la)]
+    for i in range(la):
+        for j in range(cb):
+            for k in range(ca):
                 result[i][j] += A[i][k]*B[k][j]
-
     return result
 
 def apply_transformation(trajectory, T):
