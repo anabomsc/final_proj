@@ -1,0 +1,445 @@
+<?xml version='1.0'?>
+<sdf version='1.8'>
+  <model name='ambiente_1'>
+    <pose>0 0 0 0 0 0</pose>
+    <static>true</static>
+    
+    <link name='Wall_Int_1'>
+      <pose>0 0 0 0 0 0</pose>
+      <collision name='Wall_Int_1_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_1_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>4.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_2'>
+      <pose>5.0 0 0 0 0 0</pose>
+      <collision name='Wall_Int_2_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_2_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_3'>
+      <pose>-7.0 0 0 0 0 0</pose>
+      <collision name='Wall_Int_3_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>6.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_3_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>6.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_4'>
+      <pose>2.0 4.0 0 0 0 0</pose>
+      <collision name='Wall_Int_4_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_4_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_5'>
+      <pose>-2.0 4.0 0 0 0 0</pose>
+      <collision name='Wall_Int_5_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_5_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_6'>
+      <pose>2.0 -4.0 0 0 0 0</pose>
+      <collision name='Wall_Int_6_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_6_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_7'>
+      <pose>-2.0 -4.0 0 0 0 0</pose>
+      <collision name='Wall_Int_7_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_7_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_8'>
+      <pose>9.0 4.0 0 0 0 0</pose>
+      <collision name='Wall_Int_8_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_8_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_9'>
+      <pose>-9.0 4.0 0 0 0 0</pose>
+      <collision name='Wall_Int_9_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_9_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_10'>
+      <pose>9.0 -4.0 0 0 0 0</pose>
+      <collision name='Wall_Int_10_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_10_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_11'>
+      <pose>-9.0 -4.0 0 0 0 0</pose>
+      <collision name='Wall_Int_11_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_11_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>2.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_12'>
+      <pose>6.0 0 0 0 0 1.5708</pose>
+      <collision name='Wall_Int_12_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>8.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_12_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>8.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_13'>
+      <pose>2.0 0 0 0 0 1.5708</pose>
+      <collision name='Wall_Int_13_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>8.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_13_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>8.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_14'>
+      <pose>-2.0 0 0 0 0 1.5708</pose>
+      <collision name='Wall_Int_14_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>8.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_14_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>8.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Int_15'>
+      <pose>-6.0 0 0 0 0 1.5708</pose>
+      <collision name='Wall_Int_15_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>8.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Int_15_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>8.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Ext_1'>
+      <pose>0 -6.0 0 0 0 0</pose>
+      <collision name='Wall_Ext_1_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>20.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Ext_1_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>20.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Ext_2'>
+      <pose>10.0 0 0 0 0 1.5708</pose>
+      <collision name='Wall_Ext_2_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>12.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Ext_2_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>12.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Ext_3'>
+      <pose>0 6.0 0 0 0 0</pose>
+      <collision name='Wall_Ext_3_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>20.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Ext_3_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>20.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+
+    <link name='Wall_Ext_4'>
+      <pose>-10.0 0 0 0 0 1.5708</pose>
+      <collision name='Wall_Ext_4_Collision'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>12.0 0.15 3.0</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name='Wall_Ext_4_Visual'>
+        <pose>0 0 1.5 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>12.0 0.15 3.0</size>
+          </box>
+        </geometry>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+    </link>
+    
+  </model>
+</sdf>
