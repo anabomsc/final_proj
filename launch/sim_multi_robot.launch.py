@@ -6,8 +6,7 @@ from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 
 def generate_launch_description():
     ld = LaunchDescription()
@@ -20,6 +19,14 @@ def generate_launch_description():
     )
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     ld.add_action(declare_use_sim_time)
+
+    declare_environment = DeclareLaunchArgument(
+        'environment',
+        default_value='ambiente_0.launch.py',
+        description='Environment launch file'
+    )
+    environment = LaunchConfiguration('environment')
+    ld.add_action(declare_environment)
 
     declare_robots_positions = DeclareLaunchArgument(
         'robots_positions',
@@ -43,7 +50,8 @@ def generate_launch_description():
     # Setup gazebo simulation
     gz_simulation = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg_project, 'launch', 'ambiente_0.launch.py')),
+            PathJoinSubstitution([pkg_project,'launch',environment])
+        ),
     )
     ld.add_action(gz_simulation)
 

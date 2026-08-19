@@ -80,6 +80,29 @@ EOF
     done
 done
 
+for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
+    for dist_stddev in "${DIST_STDDEVS[@]}"; do
+        for theta_stddev in "${THETA_STDDEVS[@]}"; do
+
+            $PKG_DIR/experiments/exp2.sh "$lidar_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_DIR"
+
+            # Diretório do experimento recém-criado
+            EXPERIMENT_DIR=$(ls -1dt "$SESSION_DIR"/*/ | head -n1)
+            EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
+
+            cat >> "$INDEX_FILE" <<EOF
+  - directory: "$EXPERIMENT_NAME"
+    lidar_noise_stddev: $lidar_stddev
+    dist_noise_stddev: $dist_stddev
+    theta_noise_stddev: $theta_stddev
+EOF
+
+            sleep 10
+    
+        done
+    done
+done
+
 echo ""
 echo "All Experiments Completed."
 echo "Session Directory: $SESSION_DIR"

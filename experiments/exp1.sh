@@ -91,7 +91,7 @@ WORKSPACE="$HOME/mono_ws"
 PKG_DIR="$WORKSPACE/src/final_proj"
 
 # Create results directory
-EXPERIMENTS_DIR="$SESSION_DIR/$TIMESTAMP"
+EXPERIMENTS_DIR="$SESSION_DIR/EXP01_${TIMESTAMP}"
 mkdir -p "$EXPERIMENTS_DIR"
 
 # ROS2 and workspace source
@@ -100,7 +100,7 @@ source $WORKSPACE/install/setup.bash
 
 ## Session information: lidar/alignment noise and dir
 echo ""
-echo "-------------- EXPERIMENT INFO ----------------"
+echo "------------ EXPERIMENT 01 INFO ---------------"
 echo "Timestamp: $TIMESTAMP"
 echo "Lidar noise std dev: $LIDAR_NOISE_STDDEV"
 echo "Alignment distance noise std dev: $DIST_NOISE_STDDEV"
@@ -114,6 +114,7 @@ echo "Starting multi robot simulation $TIMESTAMP..."
 
 setsid ros2 launch final_proj sim_multi_robot.launch.py \
     lidar_noise_stddev:=${LIDAR_NOISE_STDDEV} \
+    environment:="ambiente_0.launch.py"\
     robots_positions:="(-4.0,-2.0,3.1384),(13.5,1.0,3.1384)" & # simulation runs in background
 
 SIM_PID=$! # stores background simulation process pid
