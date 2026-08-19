@@ -1,125 +1,146 @@
 import os
 
 from ament_index_python.packages import get_package_share_directory
-from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, RegisterEventHandler
-from launch.substitutions import LaunchConfiguration, Command, PythonExpression
-from launch.event_handlers import OnProcessExit
 from launch_ros.actions import Node
-from launch.conditions import IfCondition
 
-def generate_launch_description():
-    ld = LaunchDescription()
-    xy_offsets = [(-4.0,-2.0),(13.5, 1.0)] # robot positions
-    yaw_offset = 3.1384
-    z_offset = 0.1
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler, OpaqueFunction
+from launch.substitutions import LaunchConfiguration, Command
+from launch.event_handlers import OnProcessExit
 
-    # Configuration
-    declare_num_robots = DeclareLaunchArgument(
-        'num_robots',
-        default_value='2',
-        description='Número de robôs na simulação'
-    )
+def parse_robot_positions(robots_positions_string):
+    robots_positions_string = robots_positions_string.strip()
+    if not robots_positions_string:
+        return []
 
-    declare_use_sim_time = DeclareLaunchArgument(
-        'use_sim_time',
-        default_value='true',
-        description='Use sim time if true'
-    )
+    positions = []
+    for robot in robots_positions_string.split('),'):
+        robot = robot.strip().strip('()')
+        try:
+            x, y, yaw = robot.split(',')
+            positions.append((float(x), float(y), float(yaw)))
 
-    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
-    num_robots = LaunchConfiguration('num_robots')
+        except ValueError:
+            raise ValueError(
+                f'Posição inválida: "{robot}". '
+                'Use o formato (x,y,yaw),(x,y,yaw),...'
+            )
+    return positions
 
-    ld.add_action(declare_use_sim_time)
-    ld.add_action(declare_num_robots)
-
-    declare_lidar_noise_stddev = DeclareLaunchArgument(
-        'lidar_noise_stddev',
-        default_value='0.0',
-        description='Standard deviation of LiDAR gaussian noise'
-    )
+def setup_robots(context, *args, **kwargs):
+    # Launch configurations
+    robots_positions_string = LaunchConfiguration('robots_positions').perform(context)
+    use_sim_time = LaunchConfiguration('use_sim_time')
     lidar_noise_stddev = LaunchConfiguration('lidar_noise_stddev')
-    ld.add_action(declare_lidar_noise_stddev)
 
-    # Setup project paths
+    robot_positions = parse_robot_positions(robots_positions_string)
+    if len(robot_positions) == 0:
+        raise ValueError('Nenhuma posição de robô foi fornecida.')
+
+    # Setup paths
     pkg_project = get_package_share_directory('final_proj')
-
     xacro_file = os.path.join(pkg_project,'description','robot','robot.urdf.xacro')
+    bridge_params = os.path.join(pkg_project,'config','artbot_bridge.yaml')
 
     # Spawn robots
+    z_offset = 0.1
+    actions = []
     last_action = None
-    max_robots = len(xy_offsets)
 
-    for i in range(max_robots):
-        name = "artbot" + str(i+1)
-        namespace = "/" + name
-        frame_prefix = name + "_"
-        topic_prefix = name + "/"
+    for i, (x,y,yaw) in enumerate(robot_positions):
+        name = f'artbot{i + 1}'
+        namespace = f'/{name}'
+        frame_prefix = f'{name}_'
+        topic_prefix = f'{name}/'
 
-        condition = IfCondition(PythonExpression([num_robots, f" > {i}"]))
-
+        # Robot state publisher
         robot_description_config = Command([
             'xacro ', xacro_file,
             ' frame_prefix:=', frame_prefix,
             ' topic_prefix:=', topic_prefix,
             ' lidar_noise_stddev:=', lidar_noise_stddev,
         ])
-
-        #State publisher
-        params = {'robot_description':robot_description_config, 'use_sim_time': use_sim_time}
+        params = {'robot_description': robot_description_config,'use_sim_time': use_sim_time}
         state_publisher = Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
             namespace=namespace,
             parameters=[params],
-            output='both',
-            condition=condition
+            output='both'
         )
 
-        # Spawn robot in Gazebo world
+        # Robot gazebo spawn
         spawn_robot = Node(
             package='ros_gz_sim',
             executable='create',
             arguments=[
-                '-topic', f'{namespace}/robot_description',
-                '-name', f'{name}',
-                '-x', str(xy_offsets[i][0]),
-                '-y', str(xy_offsets[i][1]),
-                '-z', str(z_offset),
-                '-Y', str(yaw_offset)
+                '-topic',f'{namespace}/robot_description',
+                '-name',name,
+                '-x',str(x),
+                '-y',str(y),
+                '-z',str(z_offset),
+                '-Y',str(yaw)
             ],
-            output='screen',
-            condition=condition
-        )
-
-        # Bridge ROS topics and Gazebo messages for establishing communication
-        bridge_params = os.path.join(pkg_project,'config','artbot_bridge.yaml')
-        bridge = Node(
-            package='ros_gz_bridge',
-            executable='parameter_bridge',
-            namespace=namespace,
-            parameters=[{
-                'config_file': bridge_params,
-                'expand_gz_topic_names':True
-            }],
             output='screen'
         )
 
-        # Sequential spawning handling
-        if last_action is None:
-            ld.add_action(state_publisher)
-            ld.add_action(spawn_robot)
-            ld.add_action(bridge)
-        else:
-            spawn_event = RegisterEventHandler(
-                event_handler=OnProcessExit(
-                    target_action=last_action,
-                    on_exit=[state_publisher, spawn_robot, bridge]
-                ),
-                condition=condition
-            )
-            ld.add_action(spawn_event)
+        # ROS-Gazebo bridge
+        bridge = Node(
+            package='ros_gz_bridge',
+            executable='parameter_bridge',
 
+            namespace=namespace,
+
+            parameters=[{
+                'config_file': bridge_params,
+                'expand_gz_topic_names': True
+            }],
+
+            output='screen'
+        )
+
+        # Sequantial spawn handling
+        if last_action is None:
+            actions.append(state_publisher)
+            actions.append(spawn_robot)
+            actions.append(bridge)
+        else:
+            actions.append(
+                RegisterEventHandler(
+                    event_handler=OnProcessExit(
+                        target_action=last_action,
+                        on_exit=[state_publisher, spawn_robot, bridge]
+                    )
+                )
+            )
         last_action = spawn_robot
 
+    return actions
+
+def generate_launch_description():
+    ld = LaunchDescription()
+
+    # Configuration
+    declare_robots_positions = DeclareLaunchArgument(
+        'robots_positions',
+        default_value='(0.0,0.0,0.0),(2.0,0.0,0.0)',
+        description='Robot positions in the format (x,y,yaw),(x,y,yaw),...'
+    )
+    declare_use_sim_time = DeclareLaunchArgument(
+        'use_sim_time',
+        default_value='true',
+        description='Use sim time if true'
+    )
+    declare_lidar_noise_stddev = DeclareLaunchArgument(
+        'lidar_noise_stddev',
+        default_value='0.0',
+        description='Standard deviation of LiDAR gaussian noise'
+    )
+
+    ld.add_action(declare_robots_positions)
+    ld.add_action(declare_use_sim_time)
+    ld.add_action(declare_lidar_noise_stddev)
+    ld.add_action(OpaqueFunction(function=setup_robots))
+
+    # Launch!
     return ld

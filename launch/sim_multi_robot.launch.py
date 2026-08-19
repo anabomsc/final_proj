@@ -21,13 +21,13 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     ld.add_action(declare_use_sim_time)
 
-    declare_num_robots = DeclareLaunchArgument(
-        'num_robots',
-        default_value='2',
-        description='Número de robôs na simulação'
+    declare_robots_positions = DeclareLaunchArgument(
+        'robots_positions',
+        default_value='(0.0,0.0,0.0),(2.0,0.0,0.0)',
+        description='Robot positions in the format (x,y,yaw),(x,y,yaw),...'
     )
-    num_robots = LaunchConfiguration('num_robots')
-    ld.add_action(declare_num_robots)
+    robots_positions = LaunchConfiguration('robots_positions')
+    ld.add_action(declare_robots_positions)
 
     declare_lidar_noise_stddev = DeclareLaunchArgument(
         'lidar_noise_stddev',
@@ -52,7 +52,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(pkg_project, 'launch', 'multi_robot_spawn.launch.py')),
         launch_arguments={'use_sim_time': use_sim_time,
-                          'num_robots': num_robots,
+                          'robots_positions': robots_positions,
                           'lidar_noise_stddev': lidar_noise_stddev}.items(),
     )
     ld.add_action(multi_robot)

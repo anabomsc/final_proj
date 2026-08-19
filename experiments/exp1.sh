@@ -113,7 +113,8 @@ echo ""
 echo "Starting multi robot simulation $TIMESTAMP..."
 
 setsid ros2 launch final_proj sim_multi_robot.launch.py \
-    lidar_noise_stddev:=${LIDAR_NOISE_STDDEV} & # simulation runs in background
+    lidar_noise_stddev:=${LIDAR_NOISE_STDDEV} \
+    robots_positions:="(-4.0,-2.0,3.1384),(13.5,1.0,3.1384)" & # simulation runs in background
 
 SIM_PID=$! # stores background simulation process pid
 echo "Simulation PID: $SIM_PID"
