@@ -21,6 +21,10 @@
             <size>4.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -44,6 +48,10 @@
             <size>2.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -67,6 +75,10 @@
             <size>6.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -90,6 +102,10 @@
             <size>2.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -113,6 +129,10 @@
             <size>2.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -136,6 +156,10 @@
             <size>2.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -159,6 +183,10 @@
             <size>2.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -182,6 +210,10 @@
             <size>2.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -205,6 +237,10 @@
             <size>2.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -228,6 +264,10 @@
             <size>2.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -251,6 +291,10 @@
             <size>2.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -274,6 +318,10 @@
             <size>8.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -297,6 +345,10 @@
             <size>8.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -320,6 +372,10 @@
             <size>8.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -343,6 +399,10 @@
             <size>8.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -366,6 +426,10 @@
             <size>20.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -389,6 +453,10 @@
             <size>12.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -412,6 +480,10 @@
             <size>20.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
@@ -435,6 +507,10 @@
             <size>12.0 0.15 3.0</size>
           </box>
         </geometry>
+        <material>
+          <ambient>0.1 0.1 0.1 1</ambient>
+          <diffuse>0.1 0.1 0.1 1</diffuse>
+        </material>
         <meta>
           <layer>0</layer>
         </meta>
