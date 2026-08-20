@@ -100,11 +100,11 @@ class MultiRobotPreciseSequence(Node):
         linear_speed_robot_1 = 4.0
         angular_speed_robot_1 = 1.0
 
-        self.move_distance(self.pub1, self.pose1, distance=0.9, speed=linear_speed_robot_1)
+        self.move_distance(self.pub1, self.pose1, distance=1.3, speed=linear_speed_robot_1)
         self.rotate_angle(self.pub1, self.pose1, angle_rad=1.35, speed=angular_speed_robot_1)
         self.move_distance(self.pub1, self.pose1, distance=2.8, speed=linear_speed_robot_1)
         self.rotate_angle(self.pub1, self.pose1, angle_rad=-1.35, speed=angular_speed_robot_1)
-        self.move_distance(self.pub1, self.pose1, distance=1.8, speed=linear_speed_robot_1)
+        self.move_distance(self.pub1, self.pose1, distance=2.4, speed=linear_speed_robot_1)
         self.rotate_angle(self.pub1, self.pose1, angle_rad=-1.33, speed=angular_speed_robot_1)
         self.move_distance(self.pub1, self.pose1, distance=2.8, speed=linear_speed_robot_1)
         self.rotate_angle(self.pub1, self.pose1, angle_rad=1.35, speed=angular_speed_robot_1)
@@ -128,7 +128,7 @@ class MultiRobotPreciseSequence(Node):
         self.rotate_angle(self.pub1, self.pose1, angle_rad=1.35, speed=angular_speed_robot_1)
         self.move_distance(self.pub1, self.pose1, distance=2.8, speed=linear_speed_robot_1)
         self.rotate_angle(self.pub1, self.pose1, angle_rad=-1.35, speed=angular_speed_robot_1)
-        self.move_distance(self.pub1, self.pose1, distance=2.3, speed=linear_speed_robot_1)
+        self.move_distance(self.pub1, self.pose1, distance=2.5, speed=linear_speed_robot_1)
         self.rotate_angle(self.pub1, self.pose1, angle_rad=-1.35, speed=angular_speed_robot_1)
         self.move_distance(self.pub1, self.pose1, distance=3.5, speed=linear_speed_robot_1)
         
@@ -140,11 +140,11 @@ class MultiRobotPreciseSequence(Node):
         linear_speed_robot_2 = 4.0
         angular_speed_robot_2 = 1.0
 
-        self.move_distance(self.pub2, self.pose2, distance=0.9, speed=linear_speed_robot_2)
+        self.move_distance(self.pub2, self.pose2, distance=1.3, speed=linear_speed_robot_2)
         self.rotate_angle(self.pub2, self.pose2, angle_rad=-1.35, speed=angular_speed_robot_2)
         self.move_distance(self.pub2, self.pose2, distance=2.8, speed=linear_speed_robot_2)
         self.rotate_angle(self.pub2, self.pose2, angle_rad=1.35, speed=angular_speed_robot_2)
-        self.move_distance(self.pub2, self.pose2, distance=1.8, speed=linear_speed_robot_2)
+        self.move_distance(self.pub2, self.pose2, distance=2.4, speed=linear_speed_robot_2)
         self.rotate_angle(self.pub2, self.pose2, angle_rad=1.33, speed=angular_speed_robot_2)
         self.move_distance(self.pub2, self.pose2, distance=2.8, speed=linear_speed_robot_2)
         self.rotate_angle(self.pub2, self.pose2, angle_rad=-1.35, speed=angular_speed_robot_2)
@@ -168,7 +168,7 @@ class MultiRobotPreciseSequence(Node):
         self.rotate_angle(self.pub2, self.pose2, angle_rad=-1.35, speed=angular_speed_robot_2)
         self.move_distance(self.pub2, self.pose2, distance=2.8, speed=linear_speed_robot_2)
         self.rotate_angle(self.pub2, self.pose2, angle_rad=1.35, speed=angular_speed_robot_2)
-        self.move_distance(self.pub2, self.pose2, distance=2.3, speed=linear_speed_robot_2)
+        self.move_distance(self.pub2, self.pose2, distance=2.5, speed=linear_speed_robot_2)
         self.rotate_angle(self.pub2, self.pose2, angle_rad=1.35, speed=angular_speed_robot_2)
         self.move_distance(self.pub2, self.pose2, distance=3.5, speed=linear_speed_robot_2)
         
