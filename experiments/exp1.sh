@@ -265,6 +265,11 @@ echo "Generating merged map plots..."
 python3 $PKG_DIR/experiments/plot_merged_map.py "$EXPERIMENTS_DIR"
 
 echo ""
+echo "Removing bag recording files..."
+
+rm -rf ${EXPERIMENTS_DIR}/bag
+
+echo ""
 echo "Experiment $TIMESTAMP Pipeline Completed"
 
 echo "Trajectory csv files saved to: $EXPERIMENTS_DIR/artbotX_{gt,odom,slam}.csv"
