@@ -56,7 +56,7 @@ save_map_retry() {
     local map_base="$2"
     local description="$3"
     local max_attempts="${4:-5}"
-    local wait_time="${5:-2}"
+    local wait_time="${5:-5}"
 
     local attempt=1
 
@@ -120,9 +120,9 @@ setsid ros2 launch final_proj sim_multi_robot.launch.py \
 SIM_PID=$! # stores background simulation process pid
 echo "Simulation PID: $SIM_PID"
 
-## Waits 15s for the simulation to finish setup
+## Waits for the simulation to finish setup
 echo "Waiting for Gazebo and ROS to finish setting up..."
-sleep 15
+sleep 10
 
 ## Starts DiffDrive vs OdomPublisher pose translation
 echo ""
@@ -152,9 +152,9 @@ ros2 bag record \
 BAG_PID=$! # stores background rosbag process pid
 echo "Rosbag PID: $BAG_PID"
 
-## Waits 2s for rosbag to start recording
+## Waits for rosbag to start recording
 echo "Waiting for rosbag to start recording..."
-sleep 2
+sleep 4
 
 ## Starting multi robot trajectory node exp1
 echo ""
