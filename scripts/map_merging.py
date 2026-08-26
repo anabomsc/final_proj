@@ -134,7 +134,13 @@ class MapMerging(Node):
 
         self.aligned_map_publishers = {} # aligned maps publishers
         self.tf_broadcaster = TransformBroadcaster(self) # tf brodcaster for new tfs and frames
-        self.tf_local2merged = {} # stamped transform from local map frames to global merged map frame 
+        self.tf_local2merged = {} # stamped transform from local map frames to global merged map frame
+
+        distance_stddev = self.gaussian_noise[0]
+        theta_stddev = self.gaussian_noise[1]
+        self.tx_noise = input_noise(distance_stddev)
+        self.ty_noise = input_noise(distance_stddev)
+        self.theta_noise = input_noise(theta_stddev)
 
         # Subscriptions and Publishers
         for robot in self.robot_names:
@@ -381,17 +387,12 @@ class MapMerging(Node):
                 relative["translation"]["y"],
                 relative["rotation"]
             )
-            distance_stddev = self.gaussian_noise[0]
-            theta_stddev = self.gaussian_noise[1]
-            tx_noise = input_noise(distance_stddev)
-            ty_noise = input_noise(distance_stddev)
-            theta_noise = input_noise(theta_stddev)
             Tr_noise = pose2matrix(
-                relative["translation"]["x"] + tx_noise,
-                relative["translation"]["y"] + ty_noise,
-                relative["rotation"] + theta_noise,
+                relative["translation"]["x"] + self.tx_noise,
+                relative["translation"]["y"] + self.ty_noise,
+                relative["rotation"] + self.theta_noise,
             )
-            noise = [tx_noise, ty_noise, theta_noise]
+            noise = [self.tx_noise, self.ty_noise, self.theta_noise]
 
             T = matrix_multiplication(
                 matrix_multiplication(Tc, Tr_noise),
