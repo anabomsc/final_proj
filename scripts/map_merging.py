@@ -466,45 +466,46 @@ class MapMerging(Node):
         # Setup important transformations
         map1_origin_T = pose2matrix(map1.info.origin.position.x, map1.info.origin.position.y, get_yaw(map1.info.origin))
         map2_origin_T = pose2matrix(map2.info.origin.position.x, map2.info.origin.position.y, get_yaw(map2.info.origin))
+        map1_origin_Tinv = inverse_transform(map1_origin_T)
+        map2_origin_Tinv = inverse_transform(map2_origin_T)
         global_origin_T = pose2matrix(merged_map.info.origin.position.x, merged_map.info.origin.position.y, get_yaw(merged_map.info.origin))
-        global_origin_Tinv = inverse_transform(global_origin_T)
 
         # Initialize merged map data vector all with unknown cells
         merged_map.data = [-1] * (merged_map.info.width * merged_map.info.height)
 
         # Copy map1 to merged map
-        for y in range(map1.info.height):
-            for x in range(map1.info.width):
-                i = x + y * map1.info.width
-                cell_x = (x + 0.5)*map1.info.resolution
-                cell_y = (y + 0.5)*map1.info.resolution
-                wx = cell_x*map1_origin_T[0][0] + cell_y*map1_origin_T[0][1] + map1_origin_T[0][2]
-                wy = cell_x*map1_origin_T[1][0] + cell_y*map1_origin_T[1][1] + map1_origin_T[1][2]
-                merged_cell_x = global_origin_Tinv[0][0] * wx + global_origin_Tinv[0][1] * wy + global_origin_Tinv[0][2]
-                merged_cell_y = global_origin_Tinv[1][0] * wx + global_origin_Tinv[1][1] * wy + global_origin_Tinv[1][2]
-                merged_x = int(merged_cell_x/merged_map.info.resolution)
-                merged_y = int(merged_cell_y/merged_map.info.resolution)
+        for merged_y in range(merged_map.info.height):
+            for merged_x in range(merged_map.info.width):
                 merged_i = merged_x + merged_y * merged_map.info.width
+                merged_cell_x = (merged_x + 0.5)*merged_map.info.resolution
+                merged_cell_y = (merged_y + 0.5)*merged_map.info.resolution
+                wx = merged_cell_x*global_origin_T[0][0] + merged_cell_y*global_origin_T[0][1] + global_origin_T[0][2]
+                wy = merged_cell_x*global_origin_T[1][0] + merged_cell_y*global_origin_T[1][1] + global_origin_T[1][2]
+                cell_x = map1_origin_Tinv[0][0] * wx + map1_origin_Tinv[0][1] * wy + map1_origin_Tinv[0][2]
+                cell_y = map1_origin_Tinv[1][0] * wx + map1_origin_Tinv[1][1] * wy + map1_origin_Tinv[1][2]
+                x = int(math.floor(cell_x/merged_map.info.resolution))
+                y = int(math.floor(cell_y/merged_map.info.resolution))
+                i = x + y * map1.info.width
 
-                is_within_bounds = (0<=merged_x<merged_map.info.width) and (0<=merged_y<merged_map.info.height)
+                is_within_bounds = (0<=x<map1.info.width) and (0<=y<map1.info.height)
                 if is_within_bounds: 
                     merged_map.data[merged_i] = map1.data[i]
 
         # Copy map2 to merged map
-        for y in range(map2.info.height):
-            for x in range(map2.info.width):
-                i = x + y * map2.info.width
-                cell_x = (x + 0.5)*map2.info.resolution
-                cell_y = (y + 0.5)*map2.info.resolution
-                wx = cell_x*map2_origin_T[0][0] + cell_y*map2_origin_T[0][1] + map2_origin_T[0][2]
-                wy = cell_x*map2_origin_T[1][0] + cell_y*map2_origin_T[1][1] + map2_origin_T[1][2]
-                merged_cell_x = global_origin_Tinv[0][0] * wx + global_origin_Tinv[0][1] * wy + global_origin_Tinv[0][2]
-                merged_cell_y = global_origin_Tinv[1][0] * wx + global_origin_Tinv[1][1] * wy + global_origin_Tinv[1][2]
-                merged_x = int(merged_cell_x/merged_map.info.resolution)
-                merged_y = int(merged_cell_y/merged_map.info.resolution)
+        for merged_y in range(merged_map.info.height):
+            for merged_x in range(merged_map.info.width):
                 merged_i = merged_x + merged_y * merged_map.info.width
+                merged_cell_x = (merged_x + 0.5)*merged_map.info.resolution
+                merged_cell_y = (merged_y + 0.5)*merged_map.info.resolution
+                wx = merged_cell_x*global_origin_T[0][0] + merged_cell_y*global_origin_T[0][1] + global_origin_T[0][2]
+                wy = merged_cell_x*global_origin_T[1][0] + merged_cell_y*global_origin_T[1][1] + global_origin_T[1][2]
+                cell_x = map2_origin_Tinv[0][0] * wx + map2_origin_Tinv[0][1] * wy + map2_origin_Tinv[0][2]
+                cell_y = map2_origin_Tinv[1][0] * wx + map2_origin_Tinv[1][1] * wy + map2_origin_Tinv[1][2]
+                x = int(math.floor(cell_x/merged_map.info.resolution))
+                y = int(math.floor(cell_y/merged_map.info.resolution))
+                i = x + y * map2.info.width
 
-                is_within_bounds = (0<=merged_x<merged_map.info.width) and (0<=merged_y<merged_map.info.height)
+                is_within_bounds = (0<=x<map2.info.width) and (0<=y<map2.info.height)
                 if is_within_bounds and (merged_map.data[merged_i] == -1): 
                     merged_map.data[merged_i] = map2.data[i]
                 
