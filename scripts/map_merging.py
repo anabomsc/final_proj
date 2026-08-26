@@ -79,22 +79,14 @@ def corners_coord(map_info):
     return [corner1, corner2, corner3, corner4]
 
 def compute_merged_corners(map1_info, map2_info):
-    # all_corners = corners_coord(map1_info) + corners_coord(map2_info)
-    # xs = [corner[0][0] for corner in all_corners]
-    # ys = [corner[1][0] for corner in all_corners]
+    all_corners = corners_coord(map1_info) + corners_coord(map2_info)
+    xs = [corner[0] for corner in all_corners]
+    ys = [corner[1] for corner in all_corners]
 
-    # xmin = min(xs)
-    # xmax = max(xs)
-    # ymin = min(ys)
-    # ymax = max(ys)
-
-    map1_corners = corners_coord(map1_info)
-    map2_corners = corners_coord(map2_info)
-
-    xmin = min(map1_corners[0][0], map1_corners[2][0], map2_corners[0][0], map2_corners[2][0])
-    ymin = min(map1_corners[0][1], map1_corners[1][1], map2_corners[0][1], map2_corners[1][1])
-    xmax = max(map1_corners[1][0], map1_corners[3][0], map2_corners[1][0], map2_corners[3][0])
-    ymax = max(map1_corners[2][1], map1_corners[3][1], map2_corners[2][1], map2_corners[3][1])
+    xmin = min(xs)
+    xmax = max(xs)
+    ymin = min(ys)
+    ymax = max(ys)
 
     return (xmin[0], xmax[0], ymin[0], ymax[0])
 
