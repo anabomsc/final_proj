@@ -4,9 +4,10 @@
 set -e # stops execution in case of errors
 
 LIDAR_NOISE_STDDEV=${1:-0.0}
-DIST_NOISE_STDDEV=${2:-0.0}
-THETA_NOISE_STDDEV=${3:-0.0}
-SESSION_DIR=${4:-"$HOME/mono_ws/results"}
+ODOM_NOISE_STDDEV=${2:-0.0}
+DIST_NOISE_STDDEV=${3:-0.0}
+THETA_NOISE_STDDEV=${4:-0.0}
+SESSION_DIR=${5:-"$HOME/mono_ws/results"}
 
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 
@@ -103,6 +104,7 @@ echo ""
 echo "------------ EXPERIMENT 01 INFO ---------------"
 echo "Timestamp: $TIMESTAMP"
 echo "Lidar noise std dev: $LIDAR_NOISE_STDDEV"
+echo "Odom noise std dev: $ODOM_NOISE_STDDEV"
 echo "Alignment distance noise std dev: $DIST_NOISE_STDDEV"
 echo "Alignment theta noise std dev: $THETA_NOISE_STDDEV"
 echo "Experiment results directory: $EXPERIMENTS_DIR"
@@ -114,6 +116,7 @@ echo "Starting multi robot simulation $TIMESTAMP..."
 
 setsid ros2 launch final_proj sim_multi_robot.launch.py \
     lidar_noise_stddev:=${LIDAR_NOISE_STDDEV} \
+    odom_noise_stddev:=${ODOM_NOISE_STDDEV} \
     environment:="ambiente_0.launch.py"\
     robots_positions:="(-4.0,-2.0,3.1384),(13.5,1.0,3.1384)" & # simulation runs in background
 

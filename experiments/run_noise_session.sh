@@ -41,6 +41,14 @@ LIDAR_STDDEVS=(
 0.50
 )
 
+ODOM_STDDEVS=(
+0.00
+0.05
+0.10
+0.30
+0.50
+)
+
 DIST_STDDEVS=(
 0.00
 0.05
@@ -58,47 +66,53 @@ THETA_STDDEVS=(
 )
 
 for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
-    for dist_stddev in "${DIST_STDDEVS[@]}"; do
-        for theta_stddev in "${THETA_STDDEVS[@]}"; do
+    for odom_stddev in "${ODOM_STDDEVS[@]}"; do
+        for dist_stddev in "${DIST_STDDEVS[@]}"; do
+            for theta_stddev in "${THETA_STDDEVS[@]}"; do
 
-            $PKG_DIR/experiments/exp1.sh "$lidar_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_DIR"
+                $PKG_DIR/experiments/exp1.sh "$lidar_stddev" "$odom_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_DIR"
 
-            # Diretório do experimento recém-criado
-            EXPERIMENT_DIR=$(ls -1dt "$SESSION_DIR"/*/ | head -n1)
-            EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
+                # Diretório do experimento recém-criado
+                EXPERIMENT_DIR=$(ls -1dt "$SESSION_DIR"/*/ | head -n1)
+                EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
 
-            cat >> "$INDEX_FILE" <<EOF
+                cat >> "$INDEX_FILE" <<EOF
   - directory: "$EXPERIMENT_NAME"
     lidar_noise_stddev: $lidar_stddev
+    odom_noise_stddev: $odom_stddev
     dist_noise_stddev: $dist_stddev
     theta_noise_stddev: $theta_stddev
 EOF
 
-            sleep 10
-    
+                sleep 10
+        
+            done
         done
     done
 done
 
 for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
-    for dist_stddev in "${DIST_STDDEVS[@]}"; do
-        for theta_stddev in "${THETA_STDDEVS[@]}"; do
+    for odom_stddev in "${ODOM_STDDEVS[@]}"; do
+        for dist_stddev in "${DIST_STDDEVS[@]}"; do
+            for theta_stddev in "${THETA_STDDEVS[@]}"; do
 
-            $PKG_DIR/experiments/exp2.sh "$lidar_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_DIR"
+                $PKG_DIR/experiments/exp2.sh "$lidar_stddev" "$odom_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_DIR"
 
-            # Diretório do experimento recém-criado
-            EXPERIMENT_DIR=$(ls -1dt "$SESSION_DIR"/*/ | head -n1)
-            EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
+                # Diretório do experimento recém-criado
+                EXPERIMENT_DIR=$(ls -1dt "$SESSION_DIR"/*/ | head -n1)
+                EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
 
-            cat >> "$INDEX_FILE" <<EOF
+                cat >> "$INDEX_FILE" <<EOF
   - directory: "$EXPERIMENT_NAME"
     lidar_noise_stddev: $lidar_stddev
+    odom_noise_stddev: $odom_stddev
     dist_noise_stddev: $dist_stddev
     theta_noise_stddev: $theta_stddev
 EOF
 
-            sleep 10
-    
+                sleep 10
+        
+            done
         done
     done
 done
