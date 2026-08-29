@@ -14,7 +14,6 @@
             <wheel_separation>0.297</wheel_separation>
             <wheel_radius>0.033</wheel_radius>
 
-
             <!-- Limits -->
             <max_linear_acceleration>1</max_linear_acceleration>
             <min_linear_acceleration>-1</min_linear_acceleration>
@@ -28,17 +27,14 @@
             <!-- Input -->
             <topic>/$(arg topic_prefix)cmd_vel</topic>
 
-            
             <!-- Output -->
             <frame_id>$(arg frame_prefix)odom</frame_id>
             <child_frame_id>$(arg frame_prefix)base_link</child_frame_id>
-            <odom_topic>/$(arg topic_prefix)odom</odom_topic>
+            <odom_topic>/$(arg topic_prefix)gt_odom</odom_topic>
             <odom_publisher_frequency>20</odom_publisher_frequency>
-            
-            <tf_topic>/tf</tf_topic>
+            <tf_topic>/gt_pose</tf_topic>
 
         </plugin>
-
 
         <plugin filename="ignition-gazebo-joint-state-publisher-system"
             name="ignition::gazebo::systems::JointStatePublisher">
@@ -50,11 +46,11 @@
         <plugin filename="ignition-gazebo-odometry-publisher-system"
             name="ignition::gazebo::systems::OdometryPublisher">
             <odom_frame>$(arg frame_prefix)odom</odom_frame>
-            <robot_base_frame>$(arg frame_prefix)base_footprint</robot_base_frame>
+            <robot_base_frame>$(arg frame_prefix)base_link</robot_base_frame>
 
-            <odom_topic>/$(arg topic_prefix)gt_odom_raw</odom_topic>
-            <odom_covariance_topic>/$(arg topic_prefix)gt_odom_with_covariance_raw</odom_covariance_topic>
-            <tf_topic>/$(arg topic_prefix)gt_pose_raw</tf_topic>
+            <odom_topic>/$(arg topic_prefix)odom_raw</odom_topic>
+            <odom_covariance_topic>/$(arg topic_prefix)odom_with_covariance_raw</odom_covariance_topic>
+            <tf_topic>/$(arg topic_prefix)pose_raw</tf_topic>
 
             <dimensions>2</dimensions>
             <odom_publish_frequency>20</odom_publish_frequency>
@@ -62,6 +58,4 @@
         </plugin>
 
     </gazebo>
-
-
 </robot>
