@@ -25,15 +25,15 @@ def plot_trajectories(gt, odom, slam, output_file, title):
     plt.figure(figsize=(8, 8))
     plt.plot( #ground truth trajectory
         gt["x"], gt["y"], linewidth=1, marker="o",
-        markersize=3, markevery=50, label="Ground Truth"
+        markersize=2, markevery=100, label="Ground Truth"
     )
     plt.plot( #odom trajectory
         odom["x"], odom["y"], linewidth=1, marker="x",
-        markersize=3, markevery=50, label="Odometry"
+        markersize=2, markevery=100, label="Odometry"
     )
     plt.plot( #slam trajectory
         slam["x"], slam["y"], linewidth=1, marker="s",
-        markersize=3, markevery=50, label="SLAM"
+        markersize=2, markevery=100, label="SLAM"
     )
 
     plt.xlabel("X [m]")
