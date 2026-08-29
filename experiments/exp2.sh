@@ -110,6 +110,19 @@ echo "Alignment theta noise std dev: $THETA_NOISE_STDDEV"
 echo "Experiment results directory: $EXPERIMENTS_DIR"
 echo "-----------------------------------------------"
 
+## Starts DiffDrive vs OdomPublisher pose translation
+echo ""
+echo "Starting OdomPublisher translation to DiffDrive reference..."
+
+setsid ros2 run final_proj plugin_reference_translation.py & # pose translation runs in background
+
+POSE_TRANSL_PID=$! # stores pose translation process pid
+echo "Relative OdomPublisher PID: $POSE_TRANSL_PID"
+
+## Waits 4s for node to start publishing
+echo "Waiting pose plugin translation node to finish setting up..."
+sleep 4
+
 ## Starting Gazebo/ROS 2 simulation
 echo ""
 echo "Starting multi robot simulation $TIMESTAMP..."
@@ -126,19 +139,6 @@ echo "Simulation PID: $SIM_PID"
 ## Waits for the simulation to finish setup
 echo "Waiting for Gazebo and ROS to finish setting up..."
 sleep 10
-
-## Starts DiffDrive vs OdomPublisher pose translation
-echo ""
-echo "Starting OdomPublisher translation to DiffDrive reference..."
-
-setsid ros2 run final_proj plugin_reference_translation.py & # pose translation runs in background
-
-POSE_TRANSL_PID=$! # stores pose translation process pid
-echo "Relative OdomPublisher PID: $POSE_TRANSL_PID"
-
-## Waits 4s for node to start publishing
-echo "Waiting pose plugin translation node to finish setting up..."
-sleep 4
 
 ## Starting ros2bag recording
 echo ""
