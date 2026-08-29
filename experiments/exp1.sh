@@ -145,7 +145,7 @@ rm -rf "$EXPERIMENTS_DIR/bag" # removes existing rosbag
 
 ros2 bag record \
     /artbot1/odom /artbot2/odom \
-    /artbot1/gt_pose_rel /artbot2/gt_pose_rel \
+    /artbot1/gt_odom /artbot2/gt_odom \
     /tf /tf_static \
     -o "$EXPERIMENTS_DIR/bag" & # rosbag runs in background
 

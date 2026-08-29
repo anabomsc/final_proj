@@ -127,8 +127,8 @@ class MapMerging(Node):
         )
 
         # Internal variables
-        self.gt_poses = {} # raw ground truth poses (gazebo world frame of reference) - map alignment
-        self.odom_poses = {} # odom poses (local odom frame of reference) - map alignment
+        self.global_poses = {} # raw poses (gazebo world frame of reference) - map alignment
+        self.local_poses = {} # odom poses (local odom frame of reference) - map alignment
         self.local_maps = {} # local individual maps (local map frame of reference) - map alignment
         self.local_aligned_maps = {} # local individual maps after alignment (global merged map frame of reference) - map fusion
 
@@ -144,26 +144,26 @@ class MapMerging(Node):
 
         # Subscriptions and Publishers
         for robot in self.robot_names:
-            gt_topic = f"/{robot}/gt_pose_raw"
-            odom_topic = f"/{robot}/odom"
+            global_topic = f"/{robot}/pose_raw"
+            local_topic = f"/{robot}/odom"
             local_map_topic = f"/{robot}/map"
             aligned_map_topic = f"/{robot}/map_aligned"
 
             self.create_subscription(
                 PoseArray,
-                gt_topic,
+                global_topic,
                 lambda msg, name=robot: self.gt_callback(msg, name),
                 10
             )
-            self.get_logger().info(f"Subscribed to {gt_topic}")
+            self.get_logger().info(f"Subscribed to {global_topic}")
 
             self.create_subscription(
                 Odometry,
-                odom_topic,
+                local_topic,
                 lambda msg, name=robot: self.odom_callback(msg, name),
                 10
             )
-            self.get_logger().info(f"Subscribed to {odom_topic}")
+            self.get_logger().info(f"Subscribed to {local_topic}")
 
             self.create_subscription(
                 OccupancyGrid,
@@ -187,10 +187,10 @@ class MapMerging(Node):
     def gt_callback(self, msg, robot):
         if not msg.poses:
             return
-        self.gt_poses[robot] = msg.poses[0]
+        self.global_poses[robot] = msg.poses[0]
 
     def odom_callback(self, msg, robot):
-        self.odom_poses[robot] = msg.pose.pose
+        self.local_poses[robot] = msg.pose.pose
 
     def map_callback(self, msg, robot):
         self.local_maps[robot] = msg
@@ -232,8 +232,8 @@ class MapMerging(Node):
             )
 
     def publish_transforms(self):
-        gt_poses_ok = len(self.gt_poses) == len(self.robot_names)
-        odom_poses_ok = len(self.odom_poses) == len(self.robot_names)
+        gt_poses_ok = len(self.global_poses) == len(self.robot_names)
+        odom_poses_ok = len(self.local_poses) == len(self.robot_names)
         local_maps_ok = len(self.local_maps) == len(self.robot_names)
         reference_robot = self.robot_names[0]
 
@@ -337,7 +337,7 @@ class MapMerging(Node):
 
         # Informações individuais (odometria)
         for robot in self.robot_names:
-            pose = self.odom_poses[robot]
+            pose = self.local_poses[robot]
 
             alignment_data[robot][robot] = {
                 "translation": {
@@ -354,7 +354,7 @@ class MapMerging(Node):
                     continue
 
                 alignment_data[robot_a][robot_b] = self.relative_pose(
-                    self.gt_poses[robot_a], self.gt_poses[robot_b]
+                    self.global_poses[robot_a], self.global_poses[robot_b]
                 )
         return alignment_data
     

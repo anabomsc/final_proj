@@ -12,10 +12,10 @@ RESULTS_DIR = sys.argv[1]
 BAG_PATH = os.path.join(RESULTS_DIR, "bag")
 
 TOPICS = {
-    "/artbot1/gt_pose_rel": "artbot1_gt.csv",
+    "/artbot1/gt_odom": "artbot1_gt.csv",
     "/artbot1/odom": "artbot1_odom.csv",
 
-    "/artbot2/gt_pose_rel": "artbot2_gt.csv",
+    "/artbot2/gt_odom": "artbot2_gt.csv",
     "/artbot2/odom": "artbot2_odom.csv",
 }
 
