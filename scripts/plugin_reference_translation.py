@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import math
+import numpy as np
 
 import rclpy
 from rclpy.node import Node
@@ -44,14 +45,14 @@ class PluginReferenceTranslation(Node):
         
         for robot in robot_names:
             raw_odom_topic = f'/{robot}/odom_raw'
-            raw_pose_topic = f'/{robot}/pose_raw'
             odom_topic = f'/{robot}/odom'
 
             self.robots[robot] = {
                 'initialized': False,
-                'x0': 0.0,
-                'y0': 0.0,
-                'yaw0': 0.0
+                'previous_time': 0.0,
+                'odom_x': 0.0,
+                'odom_y': 0.0,
+                'odom_yaw': 0.0
             }
 
             self.create_subscription(
@@ -62,14 +63,6 @@ class PluginReferenceTranslation(Node):
             )
             self.get_logger().info(f"Subscribed to {raw_odom_topic}")
 
-            self.create_subscription(
-                PoseArray,
-                raw_pose_topic,
-                lambda msg, r=robot: self.pose_callback(msg, r),
-                10
-            )
-            self.get_logger().info(f"Subscribed to {raw_pose_topic}")
-
             self.odom_publishers[robot] = self.create_publisher(
                 Odometry,
                 odom_topic,
@@ -77,79 +70,62 @@ class PluginReferenceTranslation(Node):
             )
             self.get_logger().info(f"Publishing to {odom_topic}")
 
-    def pose_callback(self, msg, robot):
-        if len(msg.poses) == 0:
-            return
-    
-        if not self.robots[robot]['initialized']:
-            self.robots[robot]['x0'] = msg.poses[0].position.x
-            self.robots[robot]['y0'] = msg.poses[0].position.y
-            self.robots[robot]['yaw0'] = quaternion_to_yaw(msg.poses[0])
-            self.robots[robot]['initialized'] = True
+    def odom_callback(self, msg, robot):
+        state = self.robots[robot]
+        current_time = msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
+        if not state['initialized']:
+            state['previous_time'] = current_time
+            state['odom_x'] = 0.0
+            state['odom_y'] = 0.0
+            state['odom_yaw'] = 0.0
+            state['initialized'] = True
 
-            self.get_logger().info(
-                f"[{robot}] Initial pose captured "
-                f"({self.robots[robot]['x0']:.3f}, {self.robots[robot]['y0']:.3f}, {self.robots[robot]['yaw0']:.3f})"
-            )
             return
 
-        tf = self.compose_tf(msg, robot)
+        dt = current_time - state['previous_time']
+        if dt <= 0.0: return
+
+        v = msg.twist.twist.linear.x
+        omega = msg.twist.twist.angular.z
+        theta = state['odom_yaw']
+
+        state['odom_x'] += v * math.cos(theta) * dt
+        state['odom_y'] += v * math.sin(theta) * dt
+        state['odom_yaw'] = normalize_angle(theta + omega * dt)
+        state['previous_time'] = current_time
+
+        new_pose = [state['odom_x'], state['odom_y'], state['odom_yaw']]
+
+        new_odom = self.new_odometry(new_pose, msg)
+        tf = self.compose_tf(new_pose, msg)
+        self.odom_publishers[robot].publish(new_odom)
         self.tf_broadcaster.sendTransform(tf)
 
-    def odom_callback(self, msg, robot):
-        if not self.robots[robot]['initialized']:
-            return
-    
-        new_odom = self.new_odometry(msg, robot)
-        self.odom_publishers[robot].publish(new_odom)
-
-    def translate_pose(self, pose, robot):
-        x = pose.position.x
-        y = pose.position.y
-        yaw = quaternion_to_yaw(pose)
-
-        tx = x - self.robots[robot]['x0']
-        ty = y - self.robots[robot]['y0']
-        yaw0 = self.robots[robot]['yaw0']
-
-        new_x = math.cos(yaw0)*tx + math.sin(yaw0)*ty
-        new_y = - math.sin(yaw0)*tx + math.cos(yaw0)*ty
-        new_yaw = normalize_angle(yaw - yaw0)
-
-        return new_x, new_y, new_yaw
-
-    def new_odometry(self, msg, robot):
-        pose = msg.pose.pose
-        new_x, new_y, new_yaw = self.translate_pose(pose, robot)
-
+    def new_odometry(self, position, msg):
         new_odom = Odometry()
-
         new_odom.header.stamp = msg.header.stamp
         new_odom.header.frame_id = msg.header.frame_id
         new_odom.child_frame_id = msg.child_frame_id
-        
-        new_odom.pose.pose.position.x = new_x
-        new_odom.pose.pose.position.y = new_y
-        new_odom.pose.pose.orientation = yaw_to_quaternion(new_yaw)
+
+        new_odom.pose.pose.position.x = position[0]
+        new_odom.pose.pose.position.y = position[1]
+        new_odom.pose.pose.orientation = yaw_to_quaternion(position[2])
         new_odom.pose.covariance = msg.pose.covariance
 
         new_odom.twist = msg.twist
 
         return new_odom
 
-    def compose_tf(self, msg, robot):
-        pose = msg.poses[0]
-        new_x, new_y, new_yaw = self.translate_pose(pose, robot)
-
+    def compose_tf(self, position, msg):
         tf = TransformStamped()
         tf.header.stamp = msg.header.stamp
-        tf.header.frame_id = f'{robot}_odom'
-        tf.child_frame_id = f'{robot}_base_link'
+        tf.header.frame_id = msg.header.frame_id
+        tf.child_frame_id = msg.child_frame_id
 
-        tf.transform.translation.x = new_x
-        tf.transform.translation.y = new_y
+        tf.transform.translation.x = position[0]
+        tf.transform.translation.y = position[1]
         tf.transform.translation.z = 0.0
-        tf.transform.rotation = yaw_to_quaternion(new_yaw)
+        tf.transform.rotation = yaw_to_quaternion(position[2])
 
         return tf
 
