@@ -34,7 +34,6 @@ echo "======================================================"
 
 # Noise configurations
 LIDAR_STDDEVS=(
-0.00
 0.05
 0.10
 0.30
@@ -42,7 +41,6 @@ LIDAR_STDDEVS=(
 )
 
 ODOM_STDDEVS=(
-0.00
 0.05
 0.10
 0.30
