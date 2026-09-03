@@ -28,8 +28,8 @@ class MultiRobotPreciseSequence(Node):
         self.pose2 = {'x': 0.0, 'y': 0.0, 'yaw': 0.0}
         
         # Sub dos tópicos de Odometria
-        self.sub1 = self.create_subscription(Odometry, '/artbot1/odom', self.odom1_callback, 10, callback_group=self.group)
-        self.sub2 = self.create_subscription(Odometry, '/artbot2/odom', self.odom2_callback, 10, callback_group=self.group)
+        self.sub1 = self.create_subscription(Odometry, '/artbot1/gt_odom', self.odom1_callback, 10, callback_group=self.group)
+        self.sub2 = self.create_subscription(Odometry, '/artbot2/gt_odom', self.odom2_callback, 10, callback_group=self.group)
         
         self.robot1_done = False
         self.robot2_done = False
