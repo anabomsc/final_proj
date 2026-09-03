@@ -9,8 +9,8 @@ import rclpy
 from rclpy.node import Node
 from rclpy.executors import ExternalShutdownException
 
-from geometry_msgs.msg import PoseArray, TransformStamped
-from nav_msgs.msg import Odometry, OccupancyGrid
+from geometry_msgs.msg import PoseArray, TransformStamped, PoseStamped
+from nav_msgs.msg import OccupancyGrid
 
 from tf2_ros import TransformBroadcaster
 from tf_transformations import euler_from_quaternion, quaternion_from_euler
@@ -145,7 +145,7 @@ class MapMerging(Node):
         # Subscriptions and Publishers
         for robot in self.robot_names:
             global_topic = f"/{robot}/pose_raw"
-            local_topic = f"/{robot}/odom"
+            local_topic = f"/{robot}/slam_pose"
             local_map_topic = f"/{robot}/map"
             aligned_map_topic = f"/{robot}/map_aligned"
 
@@ -158,9 +158,9 @@ class MapMerging(Node):
             self.get_logger().info(f"Subscribed to {global_topic}")
 
             self.create_subscription(
-                Odometry,
+                PoseStamped,
                 local_topic,
-                lambda msg, name=robot: self.odom_callback(msg, name),
+                lambda msg, name=robot: self.pose_callback(msg, name),
                 10
             )
             self.get_logger().info(f"Subscribed to {local_topic}")
@@ -189,12 +189,11 @@ class MapMerging(Node):
             return
         self.global_poses[robot] = msg.poses[0]
 
-    def odom_callback(self, msg, robot):
-        self.local_poses[robot] = msg.pose.pose
+    def pose_callback(self, msg, robot):
+        self.local_poses[robot] = msg.pose
 
     def map_callback(self, msg, robot):
         self.local_maps[robot] = msg
-        # self.publish_transforms()
 
     def save_alignment_data(self, alignment_data, transformation_data, noise_data):
         if not self.alignment_output_file:

@@ -44,6 +44,7 @@ cleanup() {
 
     stop_process_group "$MAP_MERGE" "Map Merging"
     stop_process_group "$POSE_TRANSL_PID" "Pose Plugin Translation"
+    stop_process_group "$SLAM_POSE_PUB_PID" "SLAM Pose Pub"
     stop_process_group "$SIM_PID" "Simulation"
 
     echo "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
@@ -139,6 +140,19 @@ echo "Simulation PID: $SIM_PID"
 ## Waits for the simulation to finish setup
 echo "Waiting for Gazebo and ROS to finish setting up..."
 sleep 10
+
+## Starts SLAM pose publisher
+echo ""
+echo "Starting SLAM pose publisher..."
+
+setsid ros2 run final_proj slam_pose_publisher.py & # runs in background
+
+SLAM_POSE_PUB_PID=$! # stores process pid
+echo "SLAM Pose Pub PID: $SLAM_POSE_PUB_PID"
+
+## Waits for node to start publishing
+echo "Waiting slam pose pub node to finish setting up..."
+sleep 4
 
 ## Starting ros2bag recording
 echo ""
