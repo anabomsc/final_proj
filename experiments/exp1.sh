@@ -210,7 +210,7 @@ echo "Map Merging PID: $MAP_MERGE"
 
 ## Waits for node to start publishing
 echo "Waiting map_merge node to finish setting up..."
-sleep 8
+sleep 10
 
 ## Generating local aligned maps
 echo ""
