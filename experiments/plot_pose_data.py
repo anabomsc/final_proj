@@ -24,16 +24,19 @@ def load_trajectories(gt_file, odom_file, slam_file):
 def plot_trajectories(gt, odom, slam, output_file, title):
     plt.figure(figsize=(8, 8))
     plt.plot( #ground truth trajectory
-        gt["x"], gt["y"], linewidth=1, marker="o",
-        markersize=2, markevery=100, label="Ground Truth"
+        gt["x"], gt["y"], label="Ground Truth",
+        linewidth=1, color='navy',
+        marker="o", markersize=2, markevery=100, 
     )
     plt.plot( #odom trajectory
-        odom["x"], odom["y"], linewidth=1, marker="x",
-        markersize=2, markevery=100, label="Odometry"
+        odom["x"], odom["y"], label="Odometry",
+        linewidth=1, color='green',
+        marker="x", markersize=4, markevery=100, 
     )
     plt.plot( #slam trajectory
-        slam["x"], slam["y"], linewidth=1, marker="s",
-        markersize=2, markevery=100, label="SLAM"
+        slam["x"], slam["y"], label="SLAM",
+        linewidth=1, color='orangered',
+        marker="s", markersize=2, markevery=100, 
     )
 
     plt.xlabel("X [m]")
