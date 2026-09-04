@@ -61,7 +61,8 @@ THETA_STDDEVS=(
 0.523598776 #30°
 )
 
-SESSION_TYPE_DIR="$SESSION_DIR/zero-tr-noise"
+SESSION_TYPE="zero-tr-noise"
+SESSION_TYPE_DIR="$SESSION_DIR/$SESSION_TYPE"
 for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
     for odom_stddev in "${ODOM_STDDEVS[@]}"; do
         $PKG_DIR/experiments/exp1.sh "$lidar_stddev" "$odom_stddev" "0.0" "0.0" "$SESSION_TYPE_DIR"
@@ -71,7 +72,7 @@ for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
         EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
 
         cat >> "$INDEX_FILE" <<EOF
-  - directory: "$EXPERIMENT_NAME"
+  - directory: "./$SESSION_TYPE/$EXPERIMENT_NAME"
     lidar_noise_stddev: $lidar_stddev
     odom_noise_stddev: $odom_stddev
     dist_noise_stddev: 0.0
@@ -92,7 +93,7 @@ for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
         EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
 
         cat >> "$INDEX_FILE" <<EOF
-  - directory: "$EXPERIMENT_NAME"
+  - directory: "./$SESSION_TYPE/$EXPERIMENT_NAME"
     lidar_noise_stddev: $lidar_stddev
     odom_noise_stddev: $odom_stddev
     dist_noise_stddev: 0.0
@@ -104,7 +105,8 @@ EOF
     done
 done
 
-SESSION_TYPE_DIR="$SESSION_DIR/tr-noise"
+SESSION_TYPE="tr-noise"
+SESSION_TYPE_DIR="$SESSION_DIR/$SESSION_TYPE"
 for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
     for odom_stddev in "${ODOM_STDDEVS[@]}"; do
         for dist_stddev in "${DIST_STDDEVS[@]}"; do
@@ -117,7 +119,7 @@ for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
                 EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
 
                 cat >> "$INDEX_FILE" <<EOF
-  - directory: "$EXPERIMENT_NAME"
+  - directory: "./$SESSION_TYPE/$EXPERIMENT_NAME"
     lidar_noise_stddev: $lidar_stddev
     odom_noise_stddev: $odom_stddev
     dist_noise_stddev: $dist_stddev
@@ -143,7 +145,7 @@ for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
                 EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
 
                 cat >> "$INDEX_FILE" <<EOF
-  - directory: "$EXPERIMENT_NAME"
+  - directory: "./$SESSION_TYPE/$EXPERIMENT_NAME"
     lidar_noise_stddev: $lidar_stddev
     odom_noise_stddev: $odom_stddev
     dist_noise_stddev: $dist_stddev
