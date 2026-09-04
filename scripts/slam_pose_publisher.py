@@ -37,7 +37,7 @@ class SlamPosePub(Node):
             )
             self.get_logger().info(f"Publishing to {slam_pose_topic}")
 
-        self.timer = self.create_timer(0.5, self.publish_pose)
+        self.timer = self.create_timer(0.05, self.publish_pose)
 
     def publish_pose(self):
         for robot in self.robot_names:
