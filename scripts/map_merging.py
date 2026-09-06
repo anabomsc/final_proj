@@ -118,8 +118,6 @@ class MapMerging(Node):
             "artbot2"
         ]
 
-        self.timer = self.create_timer(5.0, self.publish_transforms)
-
         map_qos = QoSProfile(
             history=HistoryPolicy.KEEP_LAST, depth=1,
             reliability=ReliabilityPolicy.RELIABLE,
@@ -183,6 +181,8 @@ class MapMerging(Node):
         merged_map_topic = "/merged_map"
         self.merged_map_publisher = self.create_publisher(OccupancyGrid, merged_map_topic, map_qos)
         self.get_logger().info(f"Publishing to {merged_map_topic}")
+
+        self.timer = self.create_timer(30.0, self.publish_transforms)
 
     def gt_callback(self, msg, robot):
         if not msg.poses:
@@ -262,6 +262,7 @@ class MapMerging(Node):
                             self.aligned_map_publishers[robot].publish(self.local_aligned_maps[robot])
                     self.merged_map_publisher.publish(merged_map)
                     self.save_alignment_data(alignment_data, transformations, noises)
+                    self.get_logger().info(f"Aligned maps, transforms, merged map and json data published.")
                 except RCLError:
                     return
 

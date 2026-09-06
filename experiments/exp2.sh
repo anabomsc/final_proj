@@ -57,7 +57,7 @@ save_map_retry() {
     local cmd="$1"
     local map_base="$2"
     local description="$3"
-    local max_attempts="${4:-5}"
+    local max_attempts="${4:-10}"
     local wait_time="${5:-5}"
 
     local attempt=1
