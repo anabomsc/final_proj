@@ -63,13 +63,14 @@ THETA_STDDEVS=(
 
 SESSION_TYPE="zero-tr-noise"
 SESSION_TYPE_DIR="$SESSION_DIR/$SESSION_TYPE"
-for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
-    for odom_stddev in "${ODOM_STDDEVS[@]}"; do
-        $PKG_DIR/experiments/exp1.sh "$lidar_stddev" "$odom_stddev" "0.0" "0.0" "$SESSION_TYPE_DIR"
+for ((i=0; i<${#LIDAR_STDDEVS[@]}; i++)); do
+    lidar_stddev="${LIDAR_STDDEVS[i]}"
+    odom_stddev="${ODOM_STDDEVS[i]}"
+    $PKG_DIR/experiments/exp1.sh "$lidar_stddev" "$odom_stddev" "0.0" "0.0" "$SESSION_TYPE_DIR"
 
-        # Diretório do experimento recém-criado
-        EXPERIMENT_DIR=$(ls -1dt "$SESSION_TYPE_DIR"/*/ | head -n1)
-        EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
+    # Diretório do experimento recém-criado
+    EXPERIMENT_DIR=$(ls -1dt "$SESSION_TYPE_DIR"/*/ | head -n1)
+    EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
 
         cat >> "$INDEX_FILE" <<EOF
   - directory: "./$SESSION_TYPE/$EXPERIMENT_NAME"
@@ -79,18 +80,18 @@ for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
     theta_noise_stddev: 0.0
 EOF
 
-        sleep 10
+    sleep 10
 
-    done
 done
 
-for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
-    for odom_stddev in "${ODOM_STDDEVS[@]}"; do
-        $PKG_DIR/experiments/exp2.sh "$lidar_stddev" "$odom_stddev" "0.0" "0.0" "$SESSION_TYPE_DIR"
+for ((i=0; i<${#LIDAR_STDDEVS[@]}; i++)); do
+    lidar_stddev="${LIDAR_STDDEVS[i]}"
+    odom_stddev="${ODOM_STDDEVS[i]}"
+    $PKG_DIR/experiments/exp2.sh "$lidar_stddev" "$odom_stddev" "0.0" "0.0" "$SESSION_TYPE_DIR"
 
-        # Diretório do experimento recém-criado
-        EXPERIMENT_DIR=$(ls -1dt "$SESSION_TYPE_DIR"/*/ | head -n1)
-        EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
+    # Diretório do experimento recém-criado
+    EXPERIMENT_DIR=$(ls -1dt "$SESSION_TYPE_DIR"/*/ | head -n1)
+    EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
 
         cat >> "$INDEX_FILE" <<EOF
   - directory: "./$SESSION_TYPE/$EXPERIMENT_NAME"
@@ -100,23 +101,23 @@ for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
     theta_noise_stddev: 0.0
 EOF
 
-        sleep 10
+    sleep 10
 
-    done
 done
 
 SESSION_TYPE="tr-noise"
 SESSION_TYPE_DIR="$SESSION_DIR/$SESSION_TYPE"
-for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
-    for odom_stddev in "${ODOM_STDDEVS[@]}"; do
-        for dist_stddev in "${DIST_STDDEVS[@]}"; do
-            for theta_stddev in "${THETA_STDDEVS[@]}"; do
+for ((i=0; i<${#LIDAR_STDDEVS[@]}; i++)); do
+    lidar_stddev="${LIDAR_STDDEVS[i]}"
+    odom_stddev="${ODOM_STDDEVS[i]}"
+    dist_stddev="${DIST_STDDEVS[i]}"
+    theta_stddev="${THETA_STDDEVS[i]}"
 
-                $PKG_DIR/experiments/exp1.sh "$lidar_stddev" "$odom_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_TYPE_DIR"
+    $PKG_DIR/experiments/exp1.sh "$lidar_stddev" "$odom_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_TYPE_DIR"
 
-                # Diretório do experimento recém-criado
-                EXPERIMENT_DIR=$(ls -1dt "$SESSION_TYPE_DIR"/*/ | head -n1)
-                EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
+    # Diretório do experimento recém-criado
+    EXPERIMENT_DIR=$(ls -1dt "$SESSION_TYPE_DIR"/*/ | head -n1)
+    EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
 
                 cat >> "$INDEX_FILE" <<EOF
   - directory: "./$SESSION_TYPE/$EXPERIMENT_NAME"
@@ -126,23 +127,20 @@ for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
     theta_noise_stddev: $theta_stddev
 EOF
 
-                sleep 10
-        
-            done
-        done
-    done
+    sleep 10
 done
 
-for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
-    for odom_stddev in "${ODOM_STDDEVS[@]}"; do
-        for dist_stddev in "${DIST_STDDEVS[@]}"; do
-            for theta_stddev in "${THETA_STDDEVS[@]}"; do
+for ((i=0; i<${#LIDAR_STDDEVS[@]}; i++)); do
+    lidar_stddev="${LIDAR_STDDEVS[i]}"
+    odom_stddev="${ODOM_STDDEVS[i]}"
+    dist_stddev="${DIST_STDDEVS[i]}"
+    theta_stddev="${THETA_STDDEVS[i]}"
 
-                $PKG_DIR/experiments/exp2.sh "$lidar_stddev" "$odom_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_TYPE_DIR"
+    $PKG_DIR/experiments/exp2.sh "$lidar_stddev" "$odom_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_TYPE_DIR"
 
-                # Diretório do experimento recém-criado
-                EXPERIMENT_DIR=$(ls -1dt "$SESSION_TYPE_DIR"/*/ | head -n1)
-                EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
+    # Diretório do experimento recém-criado
+    EXPERIMENT_DIR=$(ls -1dt "$SESSION_TYPE_DIR"/*/ | head -n1)
+    EXPERIMENT_NAME=$(basename "$EXPERIMENT_DIR")
 
                 cat >> "$INDEX_FILE" <<EOF
   - directory: "./$SESSION_TYPE/$EXPERIMENT_NAME"
@@ -152,11 +150,7 @@ for lidar_stddev in "${LIDAR_STDDEVS[@]}"; do
     theta_noise_stddev: $theta_stddev
 EOF
 
-                sleep 10
-        
-            done
-        done
-    done
+    sleep 10
 done
 
 echo ""
