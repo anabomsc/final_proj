@@ -44,14 +44,6 @@ def generate_launch_description():
     lidar_noise_stddev = LaunchConfiguration('lidar_noise_stddev')
     ld.add_action(declare_lidar_noise_stddev)
 
-    declare_odom_noise_stddev = DeclareLaunchArgument(
-        'odom_noise_stddev',
-        default_value='0.0',
-        description='Standard deviation of OdometryPublisher plugin gaussian noise'
-    )
-    odom_noise_stddev = LaunchConfiguration('odom_noise_stddev')
-    ld.add_action(declare_odom_noise_stddev)
-
     # Setup project paths
     pkg_project = get_package_share_directory('final_proj')
 
@@ -69,8 +61,7 @@ def generate_launch_description():
             os.path.join(pkg_project, 'launch', 'multi_robot_spawn.launch.py')),
         launch_arguments={'use_sim_time': use_sim_time,
                           'robots_positions': robots_positions,
-                          'lidar_noise_stddev': lidar_noise_stddev,
-                          'odom_noise_stddev': odom_noise_stddev}.items(),
+                          'lidar_noise_stddev': lidar_noise_stddev,}.items(),
     )
     ld.add_action(multi_robot)
 

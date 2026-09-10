@@ -130,7 +130,6 @@ echo "Starting multi robot simulation $TIMESTAMP..."
 
 setsid ros2 launch final_proj sim_multi_robot.launch.py \
     lidar_noise_stddev:=${LIDAR_NOISE_STDDEV} \
-    odom_noise_stddev:=${ODOM_NOISE_STDDEV} \
     environment:="ambiente_0.launch.py"\
     robots_positions:="(-4.0,-2.0,3.1384),(13.5,1.0,3.1384)" & # simulation runs in background
 

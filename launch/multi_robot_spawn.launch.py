@@ -32,7 +32,6 @@ def setup_robots(context, *args, **kwargs):
     robots_positions_string = LaunchConfiguration('robots_positions').perform(context)
     use_sim_time = LaunchConfiguration('use_sim_time')
     lidar_noise_stddev = LaunchConfiguration('lidar_noise_stddev')
-    odom_noise_stddev = LaunchConfiguration('odom_noise_stddev')
 
     robot_positions = parse_robot_positions(robots_positions_string)
     if len(robot_positions) == 0:
@@ -60,7 +59,6 @@ def setup_robots(context, *args, **kwargs):
             ' frame_prefix:=', frame_prefix,
             ' topic_prefix:=', topic_prefix,
             ' lidar_noise_stddev:=', lidar_noise_stddev,
-            ' odom_noise_stddev:=', odom_noise_stddev,
         ])
         params = {'robot_description': robot_description_config,'use_sim_time': use_sim_time}
         state_publisher = Node(
@@ -138,16 +136,10 @@ def generate_launch_description():
         default_value='0.0',
         description='Standard deviation of LiDAR gaussian noise'
     )
-    declare_odom_noise_stddev = DeclareLaunchArgument(
-        'odom_noise_stddev',
-        default_value='0.0',
-        description='Standard deviation of OdometryPublisher plugin gaussian noise'
-    )
 
     ld.add_action(declare_robots_positions)
     ld.add_action(declare_use_sim_time)
     ld.add_action(declare_lidar_noise_stddev)
-    ld.add_action(declare_odom_noise_stddev)
     ld.add_action(OpaqueFunction(function=setup_robots))
 
     # Launch!

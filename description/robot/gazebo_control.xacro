@@ -3,7 +3,6 @@
 
     <xacro:arg name="frame_prefix" default="artbot_" />
     <xacro:arg name="topic_prefix" default="artbot/" />
-    <xacro:arg name="odom_noise_stddev" default="0.0" />
     
     <gazebo>
         <plugin filename="ignition-gazebo-diff-drive-system"
@@ -55,7 +54,6 @@
 
             <dimensions>2</dimensions>
             <odom_publish_frequency>10</odom_publish_frequency>
-            <gaussian_noise>$(arg odom_noise_stddev)</gaussian_noise>
         </plugin>
 
     </gazebo>
