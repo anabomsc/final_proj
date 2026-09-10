@@ -4,10 +4,11 @@
 set -e # stops execution in case of errors
 
 LIDAR_NOISE_STDDEV=${1:-0.0}
-ODOM_NOISE_STDDEV=${2:-0.0}
-DIST_NOISE_STDDEV=${3:-0.0}
-THETA_NOISE_STDDEV=${4:-0.0}
-SESSION_DIR=${5:-"$HOME/mono_ws/results"}
+V_ODOM_NOISE_STDDEV=${2:-0.0}
+W_ODOM_NOISE_STDDEV=${3:-0.0}
+DIST_NOISE_STDDEV=${4:-0.0}
+THETA_NOISE_STDDEV=${5:-0.0}
+SESSION_DIR=${6:-"$HOME/mono_ws/results"}
 
 TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 
@@ -105,7 +106,8 @@ echo ""
 echo "------------ EXPERIMENT 01 INFO ---------------"
 echo "Timestamp: $TIMESTAMP"
 echo "Lidar noise std dev: $LIDAR_NOISE_STDDEV"
-echo "Odom noise std dev: $ODOM_NOISE_STDDEV"
+echo "Odom noise linear velocity std dev: $V_ODOM_NOISE_STDDEV"
+echo "Odom noise angular velocity std dev: $W_ODOM_NOISE_STDDEV"
 echo "Alignment distance noise std dev: $DIST_NOISE_STDDEV"
 echo "Alignment theta noise std dev: $THETA_NOISE_STDDEV"
 echo "Experiment results directory: $EXPERIMENTS_DIR"
@@ -115,7 +117,8 @@ echo "-----------------------------------------------"
 echo ""
 echo "Starting OdomPublisher translation to DiffDrive reference..."
 
-setsid ros2 run final_proj plugin_reference_translation.py & # pose translation runs in background
+setsid ros2 run final_proj plugin_reference_translation.py \
+    --ros-args -p gaussian_noise:=[${V_ODOM_NOISE_STDDEV},${W_ODOM_NOISE_STDDEV}] & # pose translation runs in background
 
 POSE_TRANSL_PID=$! # stores pose translation process pid
 echo "Relative OdomPublisher PID: $POSE_TRANSL_PID"

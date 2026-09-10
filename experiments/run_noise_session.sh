@@ -40,11 +40,18 @@ LIDAR_STDDEVS=(
 0.50
 )
 
-ODOM_STDDEVS=(
+V_ODOM_STDDEVS=(
 0.05
 0.10
 0.30
 0.50
+)
+
+W_ODOM_STDDEVS=(
+0.0174532925 #1°
+0.0872664626 #5°
+0.174532925 #10°
+0.34906585 #20°
 )
 
 DIST_STDDEVS=(
@@ -65,8 +72,9 @@ SESSION_TYPE="zero-tr-noise"
 SESSION_TYPE_DIR="$SESSION_DIR/$SESSION_TYPE"
 for ((i=0; i<${#LIDAR_STDDEVS[@]}; i++)); do
     lidar_stddev="${LIDAR_STDDEVS[i]}"
-    odom_stddev="${ODOM_STDDEVS[i]}"
-    $PKG_DIR/experiments/exp1.sh "$lidar_stddev" "$odom_stddev" "0.0" "0.0" "$SESSION_TYPE_DIR"
+    v_odom_stddev="${V_ODOM_STDDEVS[i]}"
+    w_odom_stddev="${W_ODOM_STDDEVS[i]}"
+    $PKG_DIR/experiments/exp1.sh "$lidar_stddev" "$v_odom_stddev" "$w_odom_stddev" "0.0" "0.0" "$SESSION_TYPE_DIR"
 
     # Diretório do experimento recém-criado
     EXPERIMENT_DIR=$(ls -1dt "$SESSION_TYPE_DIR"/*/ | head -n1)
@@ -75,7 +83,8 @@ for ((i=0; i<${#LIDAR_STDDEVS[@]}; i++)); do
         cat >> "$INDEX_FILE" <<EOF
   - directory: "./$SESSION_TYPE/$EXPERIMENT_NAME"
     lidar_noise_stddev: $lidar_stddev
-    odom_noise_stddev: $odom_stddev
+    v_odom_noise_stddev: $v_odom_stddev
+    w_odom_noise_stddev: $w_odom_stddev
     dist_noise_stddev: 0.0
     theta_noise_stddev: 0.0
 EOF
@@ -86,8 +95,9 @@ done
 
 for ((i=0; i<${#LIDAR_STDDEVS[@]}; i++)); do
     lidar_stddev="${LIDAR_STDDEVS[i]}"
-    odom_stddev="${ODOM_STDDEVS[i]}"
-    $PKG_DIR/experiments/exp2.sh "$lidar_stddev" "$odom_stddev" "0.0" "0.0" "$SESSION_TYPE_DIR"
+    v_odom_stddev="${V_ODOM_STDDEVS[i]}"
+    w_odom_stddev="${W_ODOM_STDDEVS[i]}"
+    $PKG_DIR/experiments/exp2.sh "$lidar_stddev" "$v_odom_stddev" "$w_odom_stddev" "0.0" "0.0" "$SESSION_TYPE_DIR"
 
     # Diretório do experimento recém-criado
     EXPERIMENT_DIR=$(ls -1dt "$SESSION_TYPE_DIR"/*/ | head -n1)
@@ -96,7 +106,8 @@ for ((i=0; i<${#LIDAR_STDDEVS[@]}; i++)); do
         cat >> "$INDEX_FILE" <<EOF
   - directory: "./$SESSION_TYPE/$EXPERIMENT_NAME"
     lidar_noise_stddev: $lidar_stddev
-    odom_noise_stddev: $odom_stddev
+    v_odom_noise_stddev: $v_odom_stddev
+    w_odom_noise_stddev: $w_odom_stddev
     dist_noise_stddev: 0.0
     theta_noise_stddev: 0.0
 EOF
@@ -109,11 +120,12 @@ SESSION_TYPE="tr-noise"
 SESSION_TYPE_DIR="$SESSION_DIR/$SESSION_TYPE"
 for ((i=0; i<${#LIDAR_STDDEVS[@]}; i++)); do
     lidar_stddev="${LIDAR_STDDEVS[i]}"
-    odom_stddev="${ODOM_STDDEVS[i]}"
+    v_odom_stddev="${V_ODOM_STDDEVS[i]}"
+    w_odom_stddev="${W_ODOM_STDDEVS[i]}"
     dist_stddev="${DIST_STDDEVS[i]}"
     theta_stddev="${THETA_STDDEVS[i]}"
 
-    $PKG_DIR/experiments/exp1.sh "$lidar_stddev" "$odom_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_TYPE_DIR"
+    $PKG_DIR/experiments/exp1.sh "$lidar_stddev" "$v_odom_stddev" "$w_odom_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_TYPE_DIR"
 
     # Diretório do experimento recém-criado
     EXPERIMENT_DIR=$(ls -1dt "$SESSION_TYPE_DIR"/*/ | head -n1)
@@ -122,7 +134,8 @@ for ((i=0; i<${#LIDAR_STDDEVS[@]}; i++)); do
                 cat >> "$INDEX_FILE" <<EOF
   - directory: "./$SESSION_TYPE/$EXPERIMENT_NAME"
     lidar_noise_stddev: $lidar_stddev
-    odom_noise_stddev: $odom_stddev
+    v_odom_noise_stddev: $v_odom_stddev
+    w_odom_noise_stddev: $w_odom_stddev
     dist_noise_stddev: $dist_stddev
     theta_noise_stddev: $theta_stddev
 EOF
@@ -132,11 +145,12 @@ done
 
 for ((i=0; i<${#LIDAR_STDDEVS[@]}; i++)); do
     lidar_stddev="${LIDAR_STDDEVS[i]}"
-    odom_stddev="${ODOM_STDDEVS[i]}"
+    v_odom_stddev="${V_ODOM_STDDEVS[i]}"
+    w_odom_stddev="${W_ODOM_STDDEVS[i]}"
     dist_stddev="${DIST_STDDEVS[i]}"
     theta_stddev="${THETA_STDDEVS[i]}"
 
-    $PKG_DIR/experiments/exp2.sh "$lidar_stddev" "$odom_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_TYPE_DIR"
+    $PKG_DIR/experiments/exp2.sh "$lidar_stddev" "$v_odom_stddev" "$w_odom_stddev" "$dist_stddev" "$theta_stddev" "$SESSION_TYPE_DIR"
 
     # Diretório do experimento recém-criado
     EXPERIMENT_DIR=$(ls -1dt "$SESSION_TYPE_DIR"/*/ | head -n1)
@@ -145,7 +159,8 @@ for ((i=0; i<${#LIDAR_STDDEVS[@]}; i++)); do
                 cat >> "$INDEX_FILE" <<EOF
   - directory: "./$SESSION_TYPE/$EXPERIMENT_NAME"
     lidar_noise_stddev: $lidar_stddev
-    odom_noise_stddev: $odom_stddev
+    v_odom_noise_stddev: $v_odom_stddev
+    w_odom_noise_stddev: $w_odom_stddev
     dist_noise_stddev: $dist_stddev
     theta_noise_stddev: $theta_stddev
 EOF

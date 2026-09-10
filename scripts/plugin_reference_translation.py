@@ -27,6 +27,10 @@ def yaw_to_quaternion(yaw):
 def normalize_angle(angle):
     return math.atan2(math.sin(angle), math.cos(angle))
 
+def input_noise(gaussian_stddev):
+    noise = np.random.normal(0.0, gaussian_stddev)
+    return noise
+
 class PluginReferenceTranslation(Node):
     def __init__(self):
         super().__init__('reference_translation')
@@ -38,6 +42,14 @@ class PluginReferenceTranslation(Node):
         robot_names = self.get_parameter(
             'robot_names'
         ).get_parameter_value().string_array_value
+
+        self.declare_parameter(
+            name="gaussian_noise",
+            value=[0.0, 0.0]
+        )
+        self.gaussian_noise = self.get_parameter(
+            name="gaussian_noise"
+        ).value
 
         self.robots = {}
         self.odom_publishers = {}
@@ -85,8 +97,8 @@ class PluginReferenceTranslation(Node):
         dt = current_time - state['previous_time']
         if dt <= 0.0: return
 
-        v = msg.twist.twist.linear.x
-        omega = msg.twist.twist.angular.z
+        v = msg.twist.twist.linear.x + input_noise(self.gaussian_noise[0])
+        omega = msg.twist.twist.angular.z + input_noise(self.gaussian_noise[1])
         theta = state['odom_yaw']
 
         state['odom_x'] += v * math.cos(theta) * dt
