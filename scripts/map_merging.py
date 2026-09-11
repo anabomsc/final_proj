@@ -382,11 +382,6 @@ class MapMerging(Node):
                 other["rotation"]
             )
 
-            Tr = pose2matrix(
-                relative["translation"]["x"],
-                relative["translation"]["y"],
-                relative["rotation"]
-            )
             Tr_noise = pose2matrix(
                 relative["translation"]["x"] + self.tx_noise,
                 relative["translation"]["y"] + self.ty_noise,
