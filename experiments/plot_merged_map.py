@@ -76,15 +76,15 @@ def plot_map_with_trajectories(map_yaml_file, gt_traject_files, odom_traject_fil
     plt.figure(figsize=(8, 8))
     plt.imshow(map, cmap="gray", origin="lower", extent=extent,) # merged map
 
-    robot_reference = gt_traject_files[0].stem.replace("_gt", "")
     transform_data = load_json(transformation_file)
+    transformed_robots = set(transform_data["transformation"].keys())
     for gt_file, odom_file, slam_file in zip(gt_traject_files, odom_traject_files, slam_traject_files):
             robot_name = gt_file.stem.replace("_gt", "")
             print(f"Processando trajetória {robot_name}...")
 
             gt, odom, slam = load_trajectories(gt_file, odom_file, slam_file)
-            if robot_name != robot_reference:
-                print(f"Transformando trajetória de {robot_name} para referência de {robot_reference}")
+            if robot_name in transformed_robots:
+                print(f"Transformando trajetória de {robot_name}")
                 gt, odom, slam = compute_trajectory_transformation(
                     robot_name, gt, odom, slam, transform_data,
                 )
