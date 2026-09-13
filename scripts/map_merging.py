@@ -113,10 +113,13 @@ class MapMerging(Node):
             name="gaussian_noise"
         ).value
 
-        self.robot_names = [
-            "artbot1",
-            "artbot2"
-        ]
+        self.declare_parameter(
+            name='robot_names',
+            value=['artbot1', 'artbot2']
+        )
+        self.robot_names = self.get_parameter(
+            'robot_names'
+        ).get_parameter_value().string_array_value
 
         map_qos = QoSProfile(
             history=HistoryPolicy.KEEP_LAST, depth=1,
