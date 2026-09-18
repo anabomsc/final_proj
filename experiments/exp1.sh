@@ -219,7 +219,8 @@ echo "Generating aligned and merged maps..."
 setsid ros2 run final_proj map_merging.py \
     --ros-args -p use_sim_time:=true \
     -p alignment_output_file:=${EXPERIMENTS_DIR}/alignment_data.json \
-    -p gaussian_noise:=[${DIST_NOISE_STDDEV},${THETA_NOISE_STDDEV}] &
+    -p gaussian_noise:=[${DIST_NOISE_STDDEV},${THETA_NOISE_STDDEV}] \
+    -p robot_names:=['artbot1','artbot2'] &
 
 MAP_MERGE=$! # stores map alignment process pid
 echo "Map Merging PID: $MAP_MERGE"
