@@ -9,10 +9,9 @@ O sistema proposto implementa simulação dos robôs, sensores e ambientes no Ga
 ![Overview do Framework Implementado](https://github.com/anabomsc/final_proj/blob/main/assets/complete-overview.png?raw=true)
 
 ![Ambiente 1](https://github.com/anabomsc/final_proj/blob/main/assets/ambiente1-gazebo.png?raw=true)
-
 ![Ambiente 2](https://github.com/anabomsc/final_proj/blob/main/assets/ambiente2-gazebo.png?raw=true)
 
-![Modelo do Robô](https://github.com/anabomsc/final_proj/blob/assets/main/artbot-gazebo.png?raw=true)
+![Modelo do Robô](https://github.com/anabomsc/final_proj/blob/main/assets/artbot-gazebo.png?raw=true)
 
 ## Cite este Trabalho
 ```
