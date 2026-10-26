@@ -6,9 +6,15 @@ O objetivo é usar múltiplos robôs para exploração por teleoperação assín
 
 O sistema proposto implementa simulação dos robôs, sensores e ambientes no Gazebo Fortress, enquanto toda a estrutura de SLAM individual, MR-SLAM e comunicação sem fio é feita pelo ROS 2 Humble.
 
-IMAGES TBA
+![Overview do Framework Implementado](https://github.com/anabomsc/final_proj/tree/main/assets/complete-overview.png?raw=true)
 
-## Monografia
+![Ambiente 1](https://github.com/anabomsc/final_proj/tree/main/assets/ambiente1-gazebo.png?raw=true)
+
+![Ambiente 2](https://github.com/anabomsc/final_proj/tree/main/assets/ambiente2-gazebo.png?raw=true)
+
+![Modelo do Robô](https://github.com/anabomsc/final_proj/tree/assets/main/artbot-gazebo.png?raw=true)
+
+## Cite este Trabalho
 ```
 REF TBA
 ```
@@ -39,3 +45,10 @@ REF TBA
 ```
 run_session.sh
 ```
+
+## Reconhecimento
+* [ROS 2 Humble](https://docs.ros.org/en/humble/index.html)
+* [Gazebo Fortress](https://gazebosim.org/docs/fortress/getstarted/)
+* [SLAM Toolbox](https://github.com/SteveMacenski/slam_toolbox/tree/humble)
+* [Josh Newans - Articulated Robotics](https://github.com/joshnewans/articubot_one)
+* [Map Fusion Method](https://github.com/abdulkadrtr/mapMergeForMultiRobotMapping-ROS2)
