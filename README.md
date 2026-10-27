@@ -16,24 +16,22 @@ REF TBA
 ## Uso do Repositório
 1. Crie um workspace
   ```shell
-  mkdir -p ~/mr_ws/src
-  cd ~/mr_ws/src
+  mkdir -p ~/mono_ws/src
+  cd ~/mono_ws/src
   ```
 
 2. Clone o repositório
   ```shell
-  git clone https://github.com/anabomsc/rmp_2026.git
+  git clone https://github.com/anabomsc/final_proj.git
   ```
+3. Dê permissão de execução para os arquivos em `experiments` e `scripts`
 
-3. Construa o pacote
+4. Construa o pacote
   ```shell
-  cd ~/mr_ws
+  cd ~/mono_ws
   colcon build --packages-select final_proj
   ```
-4. Source o workspace
-  - Abra um novo terminal
-
-5. Dê permissão de execução para os arquivos em `experiments` e `scripts`
+5. Abra um novo terminal
 
 6. Rodar experimentos
 ```
